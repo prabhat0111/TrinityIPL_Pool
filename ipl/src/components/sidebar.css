@@ -1,0 +1,53 @@
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0a0f2c, #020617);
+  color: white;
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Logo at top */
+.logo {
+  font-size: 18px;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+/* Menu stays just below logo */
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Menu items */
+.menu li {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #aaa;
+  transition: 0.3s;
+}
+
+/* Active */
+.menu li.active {
+  background: #1e2a78;
+  color: white;
+}
+
+/* Hover */
+.menu li:hover {
+  background: #162060;
+  color: white;
+}
+
+/* Push support to bottom */
+.bottom {
+  margin-top: auto;
+  font-size: 14px;
+  color: #aaa;
+}
