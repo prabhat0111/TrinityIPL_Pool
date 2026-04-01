@@ -11,7 +11,7 @@ function Login() {
       <div className="login-box">
         <h2>WELCOME BACK</h2>
         <p>Enter the arena and claim your winning streak</p>
-
+        
         <div className="input-group">
           <label>USERNAME OR EMAIL</label>
           <div className="input-field">
