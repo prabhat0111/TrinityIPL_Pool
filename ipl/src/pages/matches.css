@@ -1,0 +1,158 @@
+/* ===== LAYOUT ===== */
+.layout {
+  display: flex;
+}
+
+/* Sidebar safety */
+.sidebar {
+  min-width: 220px;
+  flex-shrink: 0;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 40px;
+  background: #020617;
+  color: white;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ===== HEADER ===== */
+.header-card {
+  background: linear-gradient(90deg, #020617, #0a0f2c);
+  padding: 30px;
+  border-radius: 12px;
+  border-left: 4px solid #6366f1;
+  margin-bottom: 25px;
+}
+
+.tag {
+  font-size: 12px;
+  color: #8b5cf6;
+  letter-spacing: 1px;
+}
+
+.header-card h1 {
+  font-size: 42px;
+  margin: 10px 0;
+}
+
+.subtitle {
+  color: #aaa;
+  max-width: 600px;
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: #111827;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.tabs .active {
+  background: #6366f1;
+  color: white;
+}
+
+/* ===== MATCH CARD ===== */
+.match-card {
+  background: #020617;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+/* Header */
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.live {
+  color: #f97316;
+}
+
+/* Teams */
+.teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.team {
+  text-align: center;
+}
+
+/* 🔥 FIXED: renamed from .logo → .team-logo */
+.team-logo {
+  width: 60px;
+  height: 60px;
+  background: #0a0f2c;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  font-weight: bold;
+}
+
+.vs {
+  color: #888;
+}
+
+/* Time */
+.time {
+  text-align: center;
+}
+
+/* ===== BETS ===== */
+.bets {
+  display: flex;
+  gap: 15px;
+}
+
+.bet {
+  flex: 1;
+  padding: 20px;
+  border-radius: 12px;
+  background: #111827;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.bet p {
+  color: #888;
+  font-size: 12px;
+}
+
+.bet h2 {
+  margin-top: 5px;
+}
+
+/* Active bet */
+.bet.active {
+  background: linear-gradient(90deg, #6366f1, #818cf8);
+  color: white;
+}
+
+/* Hover */
+.bet:hover {
+  transform: scale(1.02);
+}

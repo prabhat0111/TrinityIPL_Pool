@@ -1,3 +1,4 @@
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 220px;
   height: 100vh;
@@ -7,20 +8,30 @@
 
   display: flex;
   flex-direction: column;
+
+  /* 🔥 KEY FIX: sticky instead of fixed */
+  position: sticky;
+  top: 0;
 }
 
-/* Logo at top */
+/* ===== LOGO ===== */
 .logo {
   font-size: 18px;
   margin-bottom: 30px;
   font-weight: bold;
 }
 
-/* Menu stays just below logo */
+/* ===== MENU ===== */
 .menu {
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+/* Remove link style */
+.menu a {
+  text-decoration: none;
+  display: block;
 }
 
 /* Menu items */
@@ -36,18 +47,46 @@
 /* Active */
 .menu li.active {
   background: #1e2a78;
-  color: white;
+  color: #fff;
 }
 
 /* Hover */
 .menu li:hover {
   background: #162060;
-  color: white;
+  color: #fff;
 }
 
-/* Push support to bottom */
+/* ===== BOTTOM SECTION ===== */
 .bottom {
   margin-top: auto;
   font-size: 14px;
   color: #aaa;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+}
+
+/* Remove underline */
+.bottom a {
+  text-decoration: none;
+  display: block;
+}
+
+/* Bottom items */
+.bottom p {
+  margin: 10px 0;
+  cursor: pointer;
+  color: #aaa;
+  transition: 0.3s;
+}
+
+/* Hover */
+.bottom p:hover {
+  color: #fff;
+}
+
+/* Active reset */
+.active-bottom {
+  color: #fff;
+  font-weight: bold;
 }
