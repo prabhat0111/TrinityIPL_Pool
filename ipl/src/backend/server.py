@@ -126,25 +126,30 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
         
 
 @app.get("/leaderboard")
-def get_leaderboard(user=Depends(get_current_user), db=Depends(get_db)):
+def leaderboard(user=Depends(get_current_user), db=Depends(get_db)):
     cur = db.cursor()
 
     try:
         cur.execute("""
-            SELECT name FROM users
-            ORDER BY created_at DESC
-            LIMIT 10;
+            SELECT u.name, COALESCE(SUM(p.points), 0) as total_points
+            FROM users u
+            LEFT JOIN picks p ON u.id = p.user_id
+            GROUP BY u.id
+            ORDER BY total_points DESC
         """)
 
-        users = cur.fetchall()
+        rows = cur.fetchall()
 
         result = []
-        for i, u in enumerate(users):
+        rank = 1
+
+        for row in rows:
             result.append({
-                "rank": i + 1,
-                "name": u[0],
-                "points": 10000 - (i * 500)  # temp
+                "rank": rank,
+                "name": row[0],
+                "points": row[1]
             })
+            rank += 1
 
         return result
 
@@ -177,24 +182,109 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
     finally:
         cur.close()
 
+# @app.on_event("startup")
+# @repeat_every(seconds=10)  # runs every minute
+# def update_match_status():
+#     conn = pool.getconn()
+#     cur = conn.cursor()
+#     try:
+#         # upcoming -> today
+#         cur.execute(
+#             "UPDATE matches SET status='today' WHERE status='upcoming' AND match_time::date = CURRENT_DATE"
+#         )
+#         # today -> live
+#         cur.execute(
+#             "UPDATE matches SET status='live' WHERE status='today' AND match_time <= NOW()"
+#         )
+#         conn.commit()
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
 @app.on_event("startup")
-@repeat_every(seconds=10)  # runs every minute
+@repeat_every(seconds=10)
 def update_match_status():
     conn = pool.getconn()
     cur = conn.cursor()
+
     try:
         # upcoming -> today
-        cur.execute(
-            "UPDATE matches SET status='today' WHERE status='upcoming' AND match_time::date = CURRENT_DATE"
-        )
+        cur.execute("""
+            UPDATE matches 
+            SET status='today' 
+            WHERE status='upcoming' AND match_time::date = CURRENT_DATE
+        """)
+
         # today -> live
-        cur.execute(
-            "UPDATE matches SET status='live' WHERE status='today' AND match_time <= NOW()"
-        )
+        cur.execute("""
+            UPDATE matches 
+            SET status='live' 
+            WHERE status='today' AND match_time <= NOW()
+        """)
+
+        # live -> completed (ONLY if result is set)
+        cur.execute("""
+            UPDATE matches 
+            SET status='completed' 
+            WHERE status='live' AND result IS NOT NULL
+        """)
+
+        # ✅ ASSIGN POINTS (IMPORTANT)
+        # Give 1 point if user picked winning team
+        cur.execute("""
+            UPDATE picks p
+            SET points = 1
+            FROM matches m
+            WHERE p.match_id = m.id
+            AND m.status = 'completed'
+            AND p.selected_team = m.result
+        """)
+
         conn.commit()
+
     finally:
         cur.close()
         pool.putconn(conn)
+
+@app.post("/pick")
+def place_pick(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        user_id = user[0]
+        match_id = data.get("match_id")
+        selected_team = data.get("selected_team")
+
+        # Check match
+        cur.execute("SELECT status FROM matches WHERE id=%s", (match_id,))
+        match = cur.fetchone()
+
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        if match[0] != "today":
+            raise HTTPException(status_code=400, detail="Betting closed")
+
+        # Prevent duplicate
+        cur.execute(
+            "SELECT * FROM picks WHERE user_id=%s AND match_id=%s",
+            (user_id, match_id)
+        )
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="Already picked")
+
+        # Insert pick
+        cur.execute(
+            "INSERT INTO picks (user_id, match_id, selected_team) VALUES (%s, %s, %s)",
+            (user_id, match_id, selected_team)
+        )
+
+        db.commit()
+
+        return {"message": "Pick placed"}
+
+    finally:
+        cur.close()
         
 if __name__ == "__main__":
     uvicorn.run(

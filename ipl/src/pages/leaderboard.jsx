@@ -59,7 +59,8 @@ function Leaderboard() {
           </div>
 
           {players.map((p, index) => (
-            <div className="row" key={index}>
+            // <div className="row" key={index}>
+              <div className="row" key={p.name}>
               <div className="rank">
                 {p.rank < 10 ? `0${p.rank}` : p.rank}
               </div>

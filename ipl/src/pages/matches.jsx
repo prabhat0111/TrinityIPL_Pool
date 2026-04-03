@@ -64,11 +64,12 @@ function Matches() {
       <div className="bets">
         {match.status === "today" ? (
           <>
-            <div className="bet">
+            <div className="bet" onClick={() => placePick(match.id, match.team1)}>
               <p>BET ON {match.team1}</p>
               <h2>1.9</h2>
             </div>
-            <div className="bet">
+
+            <div className="bet" onClick={() => placePick(match.id, match.team2)}>
               <p>BET ON {match.team2}</p>
               <h2>2.0</h2>
             </div>
@@ -85,6 +86,35 @@ function Matches() {
       </div>
     </div>
   );
+
+  const placePick = async (matchId, team) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch("http://localhost:8000/pick", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          match_id: matchId,
+          selected_team: team,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Bet placed successfully ✅");
+      } else {
+        alert(data.detail);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error placing bet");
+    }
+  };
 
   return (
     <div className="layout">
