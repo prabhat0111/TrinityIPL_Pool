@@ -8,6 +8,8 @@ from passlib.context import CryptContext
 from config import settings
 import os
 import uvicorn
+from fastapi_utils.tasks import repeat_every  # add at the top if not already
+
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -148,6 +150,51 @@ def get_leaderboard(user=Depends(get_current_user), db=Depends(get_db)):
 
     finally:
         cur.close()
+
+
+@app.get("/matches")
+def get_matches(status: str = "today", user=Depends(get_current_user), db=Depends(get_db)):
+    """
+    Fetch matches filtered by status: upcoming, today, live, completed
+    """
+    cur = db.cursor()
+    try:
+        cur.execute(
+            "SELECT id, team1, team2, match_time, result, status FROM matches WHERE status=%s ORDER BY match_time",
+            (status,)
+        )
+        matches = cur.fetchall()
+        return [
+            {
+                "id": m[0],
+                "team1": m[1],
+                "team2": m[2],
+                "match_time": m[3].isoformat(),
+                "result": m[4],
+                "status": m[5]
+            } for m in matches
+        ]
+    finally:
+        cur.close()
+
+@app.on_event("startup")
+@repeat_every(seconds=10)  # runs every minute
+def update_match_status():
+    conn = pool.getconn()
+    cur = conn.cursor()
+    try:
+        # upcoming -> today
+        cur.execute(
+            "UPDATE matches SET status='today' WHERE status='upcoming' AND match_time::date = CURRENT_DATE"
+        )
+        # today -> live
+        cur.execute(
+            "UPDATE matches SET status='live' WHERE status='today' AND match_time <= NOW()"
+        )
+        conn.commit()
+    finally:
+        cur.close()
+        pool.putconn(conn)
         
 if __name__ == "__main__":
     uvicorn.run(
