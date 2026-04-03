@@ -6,7 +6,8 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = "trinityipl"
     DATABASE_USER: str = "admin"
     DATABASE_PASSWORD: str = "admin123"
-    SECRET_KEY: str = ""
+    # SECRET_KEY: str = ""
+    SECRET_KEY: str = "supersecretkey123"
     ALGORITHM: str = "HS256"
     CORS_ORIGINS: str = "*"
 

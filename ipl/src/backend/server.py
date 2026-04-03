@@ -51,18 +51,104 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
+def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    cur = db.cursor()
+    cur.execute("SELECT id, name, email FROM users WHERE id=%s", (user_id,))
+    user = cur.fetchone()
+    cur.close()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    return user
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-@app.get("/login")
-def login():
-    conn = pool.getconn()
+# @app.get("/login")
+# def login():
+#     conn = pool.getconn()
+#     try:
+#         cur = conn.cursor()
+#     finally:
+#         cur.close()
+#         pool.putconn(conn)
+
+@app.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
+    cur = db.cursor()
+
     try:
-        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, name, email, password_hash FROM users WHERE email=%s",
+            (form_data.username,)
+        )
+        user = cur.fetchone()
+
+        if not user:
+            raise HTTPException(status_code=400, detail="User not found")
+
+        user_id, name, email, password_hash = user
+
+        if not verify_password(form_data.password, password_hash):
+            raise HTTPException(status_code=400, detail="Invalid password")
+
+        access_token = create_access_token({
+            "user_id": user_id,
+            "email": email
+        })
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": user_id,
+                "name": name,
+                "email": email
+            }
+        }
+
     finally:
         cur.close()
-        pool.putconn(conn)
+        
+
+@app.get("/leaderboard")
+def get_leaderboard(user=Depends(get_current_user), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        cur.execute("""
+            SELECT name FROM users
+            ORDER BY created_at DESC
+            LIMIT 10;
+        """)
+
+        users = cur.fetchall()
+
+        result = []
+        for i, u in enumerate(users):
+            result.append({
+                "rank": i + 1,
+                "name": u[0],
+                "points": 10000 - (i * 500)  # temp
+            })
+
+        return result
+
+    finally:
+        cur.close()
+        
 if __name__ == "__main__":
     uvicorn.run(
         "server:app",

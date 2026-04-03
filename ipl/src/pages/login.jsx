@@ -4,17 +4,41 @@ import "./login.css";
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // prevents page reload
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // You can fetch values like this
     const formData = new FormData(e.target);
     const username = formData.get("username");
     const password = formData.get("password");
 
-    console.log(username, password);
+    const body = new URLSearchParams();
+    body.append("username", username);
+    body.append("password", password);
 
-    // 👉 Later: call backend API here
+    try {
+      const res = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: body,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // ✅ store JWT token
+        localStorage.setItem("token", data.access_token);
+
+        // ✅ redirect to dashboard
+        window.location.href = "/leaderboard";
+      } else {
+        alert(data.detail);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
   };
 
   return (
@@ -25,7 +49,7 @@ function Login() {
         <h2>WELCOME BACK</h2>
         <p>Enter the arena and claim your winning streak</p>
 
-        {/* USERNAME */}
+        {/* USERNAME / EMAIL */}
         <div className="input-group">
           <label>USERNAME OR EMAIL</label>
           <div className="input-field">
@@ -33,7 +57,7 @@ function Login() {
             <input
               type="text"
               name="username"
-              placeholder="Enter your ID"
+              placeholder="Enter your email"
               required
             />
           </div>
@@ -59,22 +83,10 @@ function Login() {
           </div>
         </div>
 
-        {/* OPTIONS */}
-        {/* <div className="options">
-          <label>
-            <input type="checkbox" name="remember" /> Remember Me
-          </label>
-          <span className="forgot">Forgot Password?</span>
-        </div> */}
-
-        {/* SUBMIT BUTTON */}
+        {/* SUBMIT */}
         <button type="submit" className="login-btn">
           SIGN IN →
         </button>
-
-        {/* <p className="register">
-          Signing First Time? <span>Reset Password</span>
-        </p> */}
       </form>
     </div>
   );
