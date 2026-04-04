@@ -29,9 +29,14 @@ function Login() {
       if (res.ok) {
         // ✅ store JWT token
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("role", data.user.role);
 
         // ✅ redirect to dashboard
-        window.location.href = "/leaderboard";
+        if (data.user.role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/leaderboard";
+        }
       } else {
         alert(data.detail);
       }

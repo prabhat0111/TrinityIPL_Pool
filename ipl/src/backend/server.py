@@ -65,13 +65,25 @@ def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid token")
 
     cur = db.cursor()
-    cur.execute("SELECT id, name, email FROM users WHERE id=%s", (user_id,))
+    # cur.execute("SELECT id, name, email FROM users WHERE id=%s", (user_id,))
+    cur.execute("SELECT id, name, email, role FROM users WHERE id=%s", (user_id,))
     user = cur.fetchone()
     cur.close()
 
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
+    # return user
+    return {
+        "id": user[0],
+        "name": user[1],
+        "email": user[2],
+        "role": user[3]
+    }
+
+def admin_required(user=Depends(get_current_user)):
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
     return user
 
 @app.get("/health")
@@ -92,8 +104,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     cur = db.cursor()
 
     try:
+        # cur.execute(
+        #     "SELECT id, name, email, password_hash FROM users WHERE email=%s",
+        #     (form_data.username,)
+        # )
         cur.execute(
-            "SELECT id, name, email, password_hash FROM users WHERE email=%s",
+            "SELECT id, name, email, password_hash, role FROM users WHERE email=%s",
             (form_data.username,)
         )
         user = cur.fetchone()
@@ -101,14 +117,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
         if not user:
             raise HTTPException(status_code=400, detail="User not found")
 
-        user_id, name, email, password_hash = user
+        # user_id, name, email, password_hash = user
+        user_id, name, email, password_hash, role = user
 
         if not verify_password(form_data.password, password_hash):
             raise HTTPException(status_code=400, detail="Invalid password")
 
         access_token = create_access_token({
             "user_id": user_id,
-            "email": email
+            "email": email,
+            "role": role
         })
 
         return {
@@ -117,7 +135,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
             "user": {
                 "id": user_id,
                 "name": name,
-                "email": email
+                "email": email,
+                "role": role
             }
         }
 
@@ -251,7 +270,9 @@ def place_pick(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
     cur = db.cursor()
 
     try:
-        user_id = user[0]
+        # print("USER DATA:", user)
+        # print("USER TYPE:", type(user))
+        user_id = user["id"]
         match_id = data.get("match_id")
         selected_team = data.get("selected_team")
 
@@ -285,7 +306,192 @@ def place_pick(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
 
     finally:
         cur.close()
-        
+
+@app.get("/admin/test")
+def admin_test(user=Depends(admin_required)):
+    return {"message": f"Welcome Admin {user['name']}"}
+
+@app.post("/admin/add-match")
+def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        team1 = data.get("team1")
+        team2 = data.get("team2")
+        match_time = data.get("match_time")  # ISO format from frontend
+
+        if not team1 or not team2 or not match_time:
+            raise HTTPException(status_code=400, detail="Missing fields")
+
+        # Convert string to datetime
+        match_time = datetime.fromisoformat(match_time)
+
+        # Get status from frontend (default = upcoming)
+        status = data.get("status", "upcoming")
+
+        # ✅ Only allow these statuses
+        valid_status = ["upcoming", "today", "live"]
+
+        if status not in valid_status:
+            raise HTTPException(status_code=400, detail="Invalid status")
+
+        cur.execute("""
+            INSERT INTO matches (team1, team2, match_time, status)
+            VALUES (%s, %s, %s, %s)
+        """, (team1, team2, match_time, status))
+
+        db.commit()
+
+        return {"message": "Match added successfully"}
+
+    finally:
+        cur.close()
+
+@app.get("/admin/get-users")
+def get_users(user=Depends(admin_required), db=Depends(get_db)):
+    cur = db.cursor()
+    try:
+        cur.execute("SELECT id, name, email, role FROM users")
+        users = cur.fetchall()
+        return [{"id": u[0], "name": u[1], "email": u[2], "role": u[3]} for u in users]
+    finally:
+        cur.close()
+from fastapi import FastAPI, HTTPException, Depends
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+@app.post("/admin/add-user")
+def add_user(data: dict, user=Depends(admin_required), db=Depends(get_db)):
+    cur = db.cursor()
+    try:
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
+        role = data.get("role", "user")  # default role = user
+
+        if not name or not email or not password:
+            raise HTTPException(status_code=400, detail="Missing fields")
+
+        # Hash password
+        password_hash = pwd_context.hash(password)
+
+        # Insert user
+        cur.execute("""
+            INSERT INTO users (name, email, password_hash, role)
+            VALUES (%s, %s, %s, %s)
+        """, (name, email, password_hash, role))
+        db.commit()
+
+        return {"message": "User added successfully"}
+
+    finally:
+        cur.close()
+
+@app.post("/admin/remove-user")
+def remove_user(data: dict, user=Depends(admin_required), db=Depends(get_db)):
+    cur = db.cursor()
+    try:
+        user_id = data.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=400, detail="Missing user_id")
+
+        # Delete user
+        cur.execute("DELETE FROM users WHERE id=%s", (user_id,))
+        db.commit()
+
+        return {"message": "User removed successfully"}
+
+    finally:
+        cur.close()
+
+# @app.post("/admin/enter-result")
+# def enter_result(data: dict, user=Depends(admin_required), db=Depends(get_db)):
+#     """
+#     Admin updates the result of a match
+#     """
+#     cur = db.cursor()
+#     try:
+#         match_id = data.get("match_id")
+#         result = data.get("result")  # should be team1 or team2
+
+#         if not match_id or not result:
+#             raise HTTPException(status_code=400, detail="Missing match_id or result")
+
+#         # Check if match exists
+#         cur.execute("SELECT team1, team2, status FROM matches WHERE id=%s", (match_id,))
+#         match = cur.fetchone()
+#         if not match:
+#             raise HTTPException(status_code=404, detail="Match not found")
+
+#         team1, team2, status = match
+
+#         # Validate result
+#         if result not in [team1, team2]:
+#             raise HTTPException(status_code=400, detail="Result must be one of the playing teams")
+
+#         # Update match result
+#         cur.execute(
+#             "UPDATE matches SET result=%s, status='completed' WHERE id=%s",
+#             (result, match_id)
+#         )
+
+#         # Assign points to correct picks
+#         cur.execute("""
+#             UPDATE picks p
+#             SET points = 1
+#             FROM matches m
+#             WHERE p.match_id = m.id
+#             AND m.id=%s
+#             AND p.selected_team = %s
+#         """, (match_id, result))
+
+#         db.commit()
+
+#         return {"message": f"Match result updated to {result}"}
+
+#     finally:
+#         cur.close()
+
+
+@app.post("/admin/enter-result")
+def enter_result(data: dict, user=Depends(admin_required), db=Depends(get_db)):
+    cur = db.cursor()
+    try:
+        match_id = data.get("match_id")
+        result = data.get("result")
+
+        if not match_id or not result:
+            raise HTTPException(status_code=400, detail="Missing match_id or result")
+
+        cur.execute("SELECT team1, team2, status FROM matches WHERE id=%s", (match_id,))
+        match = cur.fetchone()
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        team1, team2, status = match
+        if result not in [team1, team2]:
+            raise HTTPException(status_code=400, detail="Result must be one of the playing teams")
+
+        cur.execute(
+            "UPDATE matches SET result=%s, status='completed' WHERE id=%s",
+            (result, match_id)
+        )
+
+        cur.execute("""
+            UPDATE picks p
+            SET points = 1
+            FROM matches m
+            WHERE p.match_id = m.id
+            AND m.id=%s
+            AND p.selected_team = %s
+        """, (match_id, result))
+
+        db.commit()
+        return {"message": f"Match result updated to {result}"}
+    finally:
+        cur.close()
+
 if __name__ == "__main__":
     uvicorn.run(
         "server:app",

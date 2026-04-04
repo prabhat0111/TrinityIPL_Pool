@@ -3,6 +3,11 @@ import Login from "./pages/login";
 import Leaderboard from "./pages/leaderboard";
 import Matches from "./pages/matches";
 import ResetPass from "./pages/resetpass";
+import Admin from "./pages/Admin/admin";
+import AddMatch from "./pages/Admin/addMatch";
+import AdminUsers from "./pages/Admin/adminUsers";
+// import EnterResults from "./pages/Admin/enterResults";
+import EnterResult from "./pages/Admin/enterResults";
 
 function App() {
   return (
@@ -12,6 +17,11 @@ function App() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/resetpass" element={<ResetPass />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/add-match" element={<AddMatch />} />
+        <Route path="/admin/add-user" element={<AdminUsers />} />
+        <Route path="/admin/enter-results" element={<EnterResult />} />
+
 
 
       </Routes>
