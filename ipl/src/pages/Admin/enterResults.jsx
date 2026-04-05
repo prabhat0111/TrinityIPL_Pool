@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import "../matches.css";
+import Admin_Sidebar from "../../components/admin_sidebar";
 
 function EnterResult() {
   const [matches, setMatches] = useState([]);
@@ -69,48 +71,54 @@ function EnterResult() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Enter Match Result</h2>
+    <div className="layout">
+      <Admin_Sidebar />
 
-      <form onSubmit={handleSubmit}>
-        <select
-          value={selectedMatch}
-          onChange={(e) => setSelectedMatch(e.target.value)}
-          required
-        >
-          <option value="">Select Live Match</option>
-          {matches.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.team1} vs {m.team2} ({new Date(m.match_time).toLocaleString()})
-            </option>
-          ))}
-        </select>
-        <br /><br />
+      <div className="main-content">
+        <div className="header-card">
+          <p className="tag">ADMIN PANEL</p>
+          <h1>ENTER RESULT</h1>
+        </div>
 
-        <select
-          value={result}
-          onChange={(e) => setResult(e.target.value)}
-          required
-        >
-          <option value="">Select Result</option>
-          {selectedMatch &&
-            matches
-              .filter((m) => m.id === parseInt(selectedMatch))
-              .map((m) => (
-                <>
-                  <option key={m.team1} value={m.team1}>
-                    {m.team1}
-                  </option>
-                  <option key={m.team2} value={m.team2}>
-                    {m.team2}
-                  </option>
-                </>
+        <div className="match-card" style={{ maxWidth: "500px" }}>
+          <form onSubmit={handleSubmit}>
+
+            <select
+              value={selectedMatch}
+              onChange={(e) => setSelectedMatch(e.target.value)}
+              required
+            >
+              <option value="">Select Live Match</option>
+              {matches.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.team1} vs {m.team2} ({new Date(m.match_time).toLocaleString()})
+                </option>
               ))}
-        </select>
-        <br /><br />
+            </select>
 
-        <button type="submit">Enter Result</button>
-      </form>
+            <select
+              value={result}
+              onChange={(e) => setResult(e.target.value)}
+              required
+            >
+              <option value="">Select Result</option>
+
+              {selectedMatch &&
+                matches
+                  .filter((m) => m.id === parseInt(selectedMatch))
+                  .map((m) => (
+                    <React.Fragment key={m.id}>
+                      <option value={m.team1}>{m.team1}</option>
+                      <option value={m.team2}>{m.team2}</option>
+                    </React.Fragment>
+                  ))}
+            </select>
+
+            <button type="submit">Enter Result</button>
+
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

@@ -47,6 +47,21 @@ function Matches() {
         <span>STADIUM</span>
       </div>
 
+      <div className="time">
+        <p>
+          {new Date(match.match_time).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+
+        {(match.status === "upcoming" || match.status === "completed") && (
+          <p>
+            {new Date(match.match_time).toLocaleDateString()}
+          </p>
+        )}
+      </div>
+
       <div className="teams">
         <div className="team">
           <div className="team-logo">{match.team1.slice(0,3).toUpperCase()}</div>
@@ -60,6 +75,8 @@ function Matches() {
           <p>{match.team2}</p>
         </div>
       </div>
+
+      
 
       <div className="bets">
         {match.status === "today" ? (

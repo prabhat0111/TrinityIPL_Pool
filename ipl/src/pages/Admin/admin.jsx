@@ -1,39 +1,147 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import "../matches.css";
+import Admin_Sidebar from "../../components/admin_sidebar";
+import { useState, useEffect } from "react";
 
 function Admin() {
-  const navigate = useNavigate();
+  const [tab, setTab] = useState("today");
+  const [matches, setMatches] = useState([]);
+  const [liveMatches, setLiveMatches] = useState([]);
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const role = localStorage.getItem("role");
+    const fetchMatches = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setMatches(data);
+      } catch (err) {
+        console.error(err);
+        alert("Error fetching matches");
+      }
+    };
 
-    // 🔒 Protect route
-    if (role !== "admin") {
-      alert("Access denied");
-      navigate("/leaderboard");
-    }
-  }, []);
+    const fetchLiveMatches = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/matches?status=live`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setLiveMatches(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchMatches();
+    fetchLiveMatches();
+  }, [tab]);
+
+  const renderMatch = (match) => (
+    <div className="match-card" key={match.id}>
+      <div className="match-header">
+        <span className={match.status === "live" ? "live" : ""}>
+          {match.status.toUpperCase()}
+        </span>
+        <span>STADIUM</span>
+      </div>
+
+      <div className="time">
+        <p>
+          {new Date(match.match_time).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
+
+        {(match.status === "upcoming" || match.status === "completed") && (
+          <p>
+            {new Date(match.match_time).toLocaleDateString()}
+          </p>
+        )}
+      </div>
+
+      <div className="teams">
+        <div className="team">
+          <div className="team-logo">
+            {match.team1.slice(0, 3).toUpperCase()}
+          </div>
+          <p>{match.team1}</p>
+        </div>
+
+        <div className="vs">VS</div>
+
+        <div className="team">
+          <div className="team-logo">
+            {match.team2.slice(0, 3).toUpperCase()}
+          </div>
+          <p>{match.team2}</p>
+        </div>
+      </div>
+
+      {/* ✅ NO BETTING HERE */}
+      <div className="bets">
+        {match.status === "completed" ? (
+          <div className="result">
+            Result: {match.result || "TBD"}
+          </div>
+        ) : match.status === "live" ? (
+          <p>Match is live</p>
+        ) : match.status === "today" ? (
+          <p>Betting open (User side)</p>
+        ) : (
+          <p>Upcoming match</p>
+        )}
+      </div>
+    </div>
+  );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Admin Dashboard</h1>
+    <div className="layout">
+      <Admin_Sidebar />
 
-      <div style={{ marginTop: "20px" }}>
-        <button onClick={() => navigate("/admin/add-match")}>
-          ➕ Add Match
-        </button>
+      <div className="main-content">
+        <div className="header-card">
+          <p className="tag">ADMIN PANEL</p>
+          <h1>ALL MATCHES</h1>
+        </div>
 
-        <br /><br />
+        {/* LIVE */}
+        {liveMatches.length > 0 && (
+          <div className="live-section">
+            <h2>LIVE NOW</h2>
+            {liveMatches.map(renderMatch)}
+          </div>
+        )}
 
-        <button onClick={() => navigate("/admin/enter-results")}>
-          🏆 Enter Results
-        </button>
+        {/* TABS */}
+        <div className="tabs">
+          <button
+            onClick={() => setTab("upcoming")}
+            className={tab === "upcoming" ? "active" : ""}
+          >
+            UPCOMING
+          </button>
 
-        <br /><br />
+          <button
+            onClick={() => setTab("today")}
+            className={tab === "today" ? "active" : ""}
+          >
+            TODAY
+          </button>
 
-        <button onClick={() => navigate("/admin/add-user")}>
-          👥 Manage Users
-        </button>
+          <button
+            onClick={() => setTab("completed")}
+            className={tab === "completed" ? "active" : ""}
+          >
+            COMPLETED
+          </button>
+        </div>
+
+        {/* MATCH LIST */}
+        {matches.map(renderMatch)}
       </div>
     </div>
   );

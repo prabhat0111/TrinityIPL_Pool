@@ -156,3 +156,42 @@
 .bet:hover {
   transform: scale(1.02);
 }
+
+
+/* for admin side */
+.match-card input,
+.match-card select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.match-card button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  background: black;
+  color: white;
+  cursor: pointer;
+}
+
+
+.match-card h3 {
+  margin-bottom: 10px;
+}
+.remove-user-btn {
+  width: auto !important;   /* 🔥 override 100% */
+  display: inline-block;
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 4px 8px;      /* smaller */
+  font-size: 12px;       /* smaller text */
+  border-radius: 4px;    /* tighter */
+  cursor: pointer;
+}
+
+.remove-user-btn:hover {
+  background: #c62828;
+}

@@ -1,3 +1,5 @@
+import "../matches.css";
+import Admin_Sidebar from "../../components/admin_sidebar";
 import React, { useEffect, useState } from "react";
 
 function AdminUsers() {
@@ -58,29 +60,79 @@ function AdminUsers() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Manage Users</h2>
+    <div className="layout">
+      <Admin_Sidebar />
 
-      <form onSubmit={handleAddUser}>
-        <input placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
-        <input placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-        <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-        <select value={role} onChange={e => setRole(e.target.value)}>
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button type="submit">Add User</button>
-      </form>
+      <div className="main-content">
+        <div className="header-card">
+          <p className="tag">ADMIN PANEL</p>
+          <h1>MANAGE USERS</h1>
+        </div>
 
-      <h3>Existing Users</h3>
-      <ul>
-        {users.map(u => (
-          <li key={u.id}>
-            {u.name} ({u.email}, {u.role})
-            <button onClick={() => handleRemoveUser(u.id)}>Remove</button>
-          </li>
-        ))}
-      </ul>
+        {/* Add User */}
+        <div className="match-card" style={{ maxWidth: "500px", marginBottom: "20px" }}>
+          <form onSubmit={handleAddUser}>
+            <input
+              placeholder="Name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
+
+            <input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+
+            <input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+
+            <select value={role} onChange={e => setRole(e.target.value)}>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            <button type="submit">Add User</button>
+          </form>
+        </div>
+
+        {/* User List */}
+        <div className="match-card">
+          <h3>Existing Users</h3>
+
+          {users.map(u => (
+            <div
+              key={u.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "10px",
+                padding: "10px",
+                borderBottom: "1px solid #eee"
+              }}
+            >
+              <span>
+                {u.name} ({u.email}, {u.role})
+              </span>
+
+              <button
+                onClick={() => handleRemoveUser(u.id)}
+                className="remove-user-btn"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
