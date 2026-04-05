@@ -7,6 +7,7 @@ function Matches() {
   const [matches, setMatches] = useState([]);
   const token = localStorage.getItem("token");
   const [liveMatches, setLiveMatches] = useState([]);
+  const [userPicks, setUserPicks] = useState({});
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -81,19 +82,28 @@ function Matches() {
       <div className="bets">
         {match.status === "today" ? (
           <>
-            <div className="bet" onClick={() => placePick(match.id, match.team1)}>
+            {/* <div className="bet" onClick={() => placePick(match.id, match.team1)}> */}
+            <div
+              className={`bet ${(userPicks[match.id] || match.user_pick) === match.team1 ? "active-bet" : ""}`}
+              onClick={() => placePick(match.id, match.team1)}
+            >
               <p>BET ON {match.team1}</p>
               <h2>1.9</h2>
             </div>
 
-            <div className="bet" onClick={() => placePick(match.id, match.team2)}>
+            {/* <div className="bet" onClick={() => placePick(match.id, match.team2)}> */}
+            <div
+              className={`bet ${(userPicks[match.id] || match.user_pick) === match.team2 ? "active-bet" : ""}`}
+              onClick={() => placePick(match.id, match.team2)}
+            >
               <p>BET ON {match.team2}</p>
               <h2>2.0</h2>
             </div>
           </>
         ) : match.status === "completed" ? (
           <div className="result">
-            Result: {match.result || "TBD"}
+            {/* Result: {match.result || "TBD"} */}
+            {match.result ? `${match.result} won the match` : "Result: TBD"}
           </div>
         ) : match.status === "live" ? (
           <p>Match is live — betting closed</p>
@@ -123,7 +133,10 @@ function Matches() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Bet placed successfully ✅");
+        setUserPicks(prev => ({
+          ...prev,
+          [matchId]: team
+        }));
       } else {
         alert(data.detail);
       }

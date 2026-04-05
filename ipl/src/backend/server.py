@@ -153,6 +153,7 @@ def leaderboard(user=Depends(get_current_user), db=Depends(get_db)):
             SELECT u.name, COALESCE(SUM(p.points), 0) as total_points
             FROM users u
             LEFT JOIN picks p ON u.id = p.user_id
+            WHERE u.role = 'user' 
             GROUP BY u.id
             ORDER BY total_points DESC
         """)
@@ -183,10 +184,16 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
     """
     cur = db.cursor()
     try:
-        cur.execute(
-            "SELECT id, team1, team2, match_time, result, status FROM matches WHERE status=%s ORDER BY match_time",
-            (status,)
-        )
+        cur.execute("""
+            SELECT 
+                m.id, m.team1, m.team2, m.match_time, m.result, m.status,
+                p.selected_team
+            FROM matches m
+            LEFT JOIN picks p 
+                ON m.id = p.match_id AND p.user_id = %s
+            WHERE m.status = %s
+            ORDER BY m.match_time
+        """, (user["id"], status))
         matches = cur.fetchall()
         return [
             {
@@ -195,7 +202,8 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
                 "team2": m[2],
                 "match_time": m[3].isoformat(),
                 "result": m[4],
-                "status": m[5]
+                "status": m[5],
+                "user_pick": m[6]  # 🔥 THIS FIXES EVERYTHING
             } for m in matches
         ]
     finally:
@@ -270,9 +278,9 @@ def place_pick(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
     cur = db.cursor()
 
     try:
-        # print("USER DATA:", user)
-        # print("USER TYPE:", type(user))
         user_id = user["id"]
+        if user["role"] != "user":
+            raise HTTPException(status_code=403, detail="Only users can place bets")
         match_id = data.get("match_id")
         selected_team = data.get("selected_team")
 
@@ -283,26 +291,33 @@ def place_pick(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
         if not match:
             raise HTTPException(status_code=404, detail="Match not found")
 
+        # ❌ No betting after match starts
         if match[0] != "today":
             raise HTTPException(status_code=400, detail="Betting closed")
 
-        # Prevent duplicate
+        # ✅ Check if user already picked
         cur.execute(
-            "SELECT * FROM picks WHERE user_id=%s AND match_id=%s",
+            "SELECT id FROM picks WHERE user_id=%s AND match_id=%s",
             (user_id, match_id)
         )
-        if cur.fetchone():
-            raise HTTPException(status_code=400, detail="Already picked")
+        existing_pick = cur.fetchone()
 
-        # Insert pick
-        cur.execute(
-            "INSERT INTO picks (user_id, match_id, selected_team) VALUES (%s, %s, %s)",
-            (user_id, match_id, selected_team)
-        )
+        if existing_pick:
+            # 🔁 UPDATE existing pick (ALLOW CHANGE)
+            cur.execute(
+                "UPDATE picks SET selected_team=%s WHERE user_id=%s AND match_id=%s",
+                (selected_team, user_id, match_id)
+            )
+        else:
+            # ➕ INSERT new pick
+            cur.execute(
+                "INSERT INTO picks (user_id, match_id, selected_team) VALUES (%s, %s, %s)",
+                (user_id, match_id, selected_team)
+            )
 
         db.commit()
 
-        return {"message": "Pick placed"}
+        return {"message": "Pick saved/updated successfully"}
 
     finally:
         cur.close()
