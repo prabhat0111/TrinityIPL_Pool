@@ -1,6 +1,8 @@
 import "./matches.css";
 import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 function Matches() {
   const [tab, setTab] = useState("today"); // upcoming / today / completed
@@ -8,6 +10,7 @@ function Matches() {
   const token = localStorage.getItem("token");
   const [liveMatches, setLiveMatches] = useState([]);
   const [userPicks, setUserPicks] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -40,7 +43,17 @@ function Matches() {
   }, [tab]);
 
   const renderMatch = (match) => (
-    <div className="match-card" key={match.id}>
+    // <div className="match-card" key={match.id}>
+    <div
+      className="match-card"
+      key={match.id}
+      onClick={() => {
+        if (match.status === "live" || match.status === "completed") {
+          navigate(`/matches/${match.id}`);
+        }
+      }}
+      style={{ cursor: (match.status === "live" || match.status === "completed") ? "pointer" : "default" }}
+    >
       <div className="match-header">
         <span className={match.status === "live" ? "live" : ""}>
           {match.status.toUpperCase()}

@@ -9,6 +9,7 @@ import AdminUsers from "./pages/Admin/adminUsers";
 // import EnterResults from "./pages/Admin/enterResults";
 import EnterResult from "./pages/Admin/enterResults";
 import Profile from "./pages/profile";
+import MatchDetail from "./pages/matchDetail";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/admin/add-user" element={<AdminUsers />} />
         <Route path="/admin/enter-results" element={<EnterResult />} />
         <Route path="/profile" element={<Profile/>} />
+        <Route path="/matches/:id" element={<MatchDetail />} />
 
 
 

@@ -561,6 +561,76 @@ def reset_password(data: dict, user=Depends(get_current_user), db=Depends(get_db
     finally:
         cur.close()
 
+
+@app.get("/matches/{match_id}/picks")
+def get_match_picks(match_id: int, user=Depends(get_current_user), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        # ✅ Get picks ONLY for this match
+        cur.execute("""
+            SELECT u.name, p.selected_team
+            FROM picks p
+            JOIN users u ON u.id = p.user_id
+            WHERE p.match_id = %s
+        """, (match_id,))
+        picks_data = cur.fetchall()
+
+        picks = [
+            {
+                "username": row[0],
+                "selected_team": row[1]
+            }
+            for row in picks_data
+        ]
+
+        # ✅ Get users who DID NOT pick
+        cur.execute("""
+            SELECT name FROM users 
+            WHERE role='user' 
+            AND id NOT IN (
+                SELECT user_id FROM picks WHERE match_id = %s
+            )
+        """, (match_id,))
+        no_pick_users = [row[0] for row in cur.fetchall()]
+
+        return {
+            "picks": picks,
+            "no_pick_users": no_pick_users
+        }
+
+    finally:
+        cur.close()
+
+@app.get("/matches/{match_id}")
+def get_match_by_id(match_id: int, user=Depends(get_current_user), db=Depends(get_db)):
+    """
+    Fetch a single match by ID
+    """
+    cur = db.cursor()
+    try:
+        cur.execute("""
+            SELECT id, team1, team2, match_time, result, status
+            FROM matches
+            WHERE id = %s
+        """, (match_id,))
+        
+        match = cur.fetchone()
+        
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+        
+        return {
+            "id": match[0],
+            "team1": match[1],
+            "team2": match[2],
+            "match_time": match[3].isoformat(),
+            "result": match[4],
+            "status": match[5]
+        }
+    finally:
+        cur.close()
+
 if __name__ == "__main__":
     uvicorn.run(
         "server:app",
