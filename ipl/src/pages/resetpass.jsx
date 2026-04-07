@@ -1,49 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./resetpass.css";
 import Sidebar from "../components/sidebar";
 
 function ResetPass() {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const handleSubmit = (e) => {
+  // FETCH PROFILE TO AUTO-FILL EMAIL
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+
+      try {
+        const res = await fetch("http://localhost:8000/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        if (res.ok) setUser(data);
+        else alert("Failed to load profile");
+      } catch (err) {
+        console.error(err);
+        alert("Failed to fetch profile");
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  // HANDLE FORM SUBMIT
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    const email = formData.get("email");
     const oldPassword = formData.get("oldPassword");
     const newPassword = formData.get("newPassword");
+    const confirmPassword = formData.get("confirmPassword");
 
-    console.log({ email, oldPassword, newPassword });
+    // CHECK PASSWORDS MATCH
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match ❌");
+      return;
+    }
+
+    // CHECK OLD ≠ NEW PASSWORD
+    if (newPassword === oldPassword) {
+      alert("New password cannot be the same as old password ❌");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch("http://localhost:8000/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: user.email, // auto-filled
+          oldPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Password updated successfully ✅");
+        e.target.reset();
+      } else {
+        alert(data.detail);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
   };
 
   return (
     <div className="layout">
       <Sidebar />
-
-      {/* 🔥 Scoped page class */}
       <div className="main-content reset-page">
         <div className="reset-wrapper">
           <form className="reset-card" onSubmit={handleSubmit}>
-            
             <div className="icon-box">🔄</div>
-
             <h2>Update Your Password</h2>
-            <p>
-              Enter your details below to securely update your account password.
-            </p>
+            <p>Enter your details below to securely update your account password.</p>
 
-            {/* EMAIL */}
+            {/* EMAIL (AUTO-FILLED) */}
             <div className="input-group">
               <label>Email Address</label>
               <div className="input-field">
                 <span>📧</span>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="name@example.com"
-                  required
-                />
+                <input type="email" value={user?.email || ""} readOnly />
               </div>
             </div>
 
@@ -58,7 +110,7 @@ function ResetPass() {
                   placeholder="••••••••"
                   required
                 />
-                <span onClick={() => setShowOld(!showOld)}>👁️</span>
+                <span onClick={() => setShowOld(!showOld)}>👁</span>
               </div>
             </div>
 
@@ -73,7 +125,22 @@ function ResetPass() {
                   placeholder="••••••••"
                   required
                 />
-                <span onClick={() => setShowNew(!showNew)}>👁️</span>
+                <span onClick={() => setShowNew(!showNew)}>👁</span>
+              </div>
+            </div>
+
+            {/* CONFIRM PASSWORD */}
+            <div className="input-group">
+              <label>Confirm Password</label>
+              <div className="input-field">
+                <span>🔐</span>
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  required
+                />
+                <span onClick={() => setShowConfirm(!showConfirm)}>👁</span>
               </div>
             </div>
 
@@ -81,13 +148,17 @@ function ResetPass() {
               Update Password →
             </button>
 
-            <p className="back-login">← Back to Login</p>
+            <p
+              className="back-login"
+              onClick={() => (window.location.href = "/leaderboard")}
+            >
+              ← Back
+            </p>
 
             <div className="footer">
-              <span>🔒 Secure SSL</span>
-              <span>🛡 Privacy First</span>
+              <span>🔒 Secure</span>
+              <span>🛡 Protected</span>
             </div>
-
           </form>
         </div>
       </div>

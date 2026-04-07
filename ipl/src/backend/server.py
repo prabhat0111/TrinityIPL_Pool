@@ -507,6 +507,60 @@ def enter_result(data: dict, user=Depends(admin_required), db=Depends(get_db)):
     finally:
         cur.close()
 
+
+
+@app.get("/profile")
+def get_profile(user=Depends(get_current_user)):
+    return {
+        "name": user["name"],
+        "email": user["email"],
+        "role": user["role"]
+    }
+
+@app.post("/reset-password")
+def reset_password(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        email = data.get("email")
+        old_password = data.get("oldPassword")
+        new_password = data.get("newPassword")
+
+        if not email or not old_password or not new_password:
+            raise HTTPException(status_code=400, detail="Missing fields")
+
+        # Get user
+        cur.execute(
+            "SELECT id, password_hash FROM users WHERE email=%s",
+            (email,)
+        )
+        user_data = cur.fetchone()
+
+        if not user_data:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        user_id, password_hash = user_data
+
+        # Verify old password
+        if not verify_password(old_password, password_hash):
+            raise HTTPException(status_code=400, detail="Old password incorrect")
+
+        # Hash new password
+        new_hash = pwd_context.hash(new_password)
+
+        # Update password
+        cur.execute(
+            "UPDATE users SET password_hash=%s WHERE id=%s",
+            (new_hash, user_id)
+        )
+
+        db.commit()
+
+        return {"message": "Password updated successfully"}
+
+    finally:
+        cur.close()
+
 if __name__ == "__main__":
     uvicorn.run(
         "server:app",

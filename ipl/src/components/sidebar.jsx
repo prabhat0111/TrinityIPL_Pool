@@ -1,11 +1,13 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import "./sidebar.css";
+import logo from "../assets/logo.jpg";
+
 
 function Sidebar() {
   return (
     <div className="sidebar">
-      <h2 className="logo">ARENA PRO</h2>
+      <h2 className="logo-text">TRINITY IPL</h2>
 
       <ul className="menu">
         <NavLink to="/leaderboard">
@@ -24,10 +26,10 @@ function Sidebar() {
           )}
         </NavLink>
 
-        <NavLink to="/users">
+        <NavLink to="/profile">
           {({ isActive }) => (
             <li className={isActive ? "active" : ""}>
-              👥 Users
+              👤 My Profile
             </li>
           )}
         </NavLink>
@@ -35,15 +37,23 @@ function Sidebar() {
 
       {/* Bottom Section */}
       <div className="bottom">
-        <NavLink to="/resetpass">
+        {/* <NavLink to="/resetpass">
           {({ isActive }) => (
             <p className={isActive ? "active-bottom" : ""}>
               🔐 Reset Password
             </p>
           )}
-        </NavLink>
+        </NavLink> */}
 
-        <p>❓ Support</p>
+        <p onClick={() => {
+          localStorage.removeItem("token");
+          window.location.href = "/";
+        }}>
+          🚪 Logout
+        </p>
+
+         <img src={logo} alt="Trinity Logo" className="sidebar-logo" />
+
       </div>
     </div>
   );

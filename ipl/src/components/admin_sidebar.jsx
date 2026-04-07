@@ -1,24 +1,31 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import "./sidebar.css";
+import logo from "../assets/logo.jpg";
+
 
 function Admin_Sidebar() {
   return (
     <div className="sidebar">
-      <h2 className="logo">HELLO ADMIN</h2>
+      
+      {/* ===== LOGO ===== */}
+      <h2 className="logo-text">Welcome Admin!</h2>
 
+      {/* ===== MENU ===== */}
       <ul className="menu">
+        
         <NavLink to="/admin">
           {({ isActive }) => (
             <li className={isActive ? "active" : ""}>
-              📊 ALL MATCHES
+              📊 All Matches
             </li>
           )}
         </NavLink>
+
         <NavLink to="/admin/add-match">
           {({ isActive }) => (
             <li className={isActive ? "active" : ""}>
-              📊 ADD MATCH
+              ➕ Add Match
             </li>
           )}
         </NavLink>
@@ -26,7 +33,7 @@ function Admin_Sidebar() {
         <NavLink to="/admin/enter-results">
           {({ isActive }) => (
             <li className={isActive ? "active" : ""}>
-              🏏 ENTER RESULT
+              🏏 Enter Result
             </li>
           )}
         </NavLink>
@@ -34,14 +41,16 @@ function Admin_Sidebar() {
         <NavLink to="/admin/add-user">
           {({ isActive }) => (
             <li className={isActive ? "active" : ""}>
-              👥 ADD USER
+              👤 Add User
             </li>
           )}
         </NavLink>
+
       </ul>
 
-      {/* Bottom Section */}
+      {/* ===== BOTTOM ===== */}
       <div className="bottom">
+        
         <NavLink to="/resetpass">
           {({ isActive }) => (
             <p className={isActive ? "active-bottom" : ""}>
@@ -50,7 +59,15 @@ function Admin_Sidebar() {
           )}
         </NavLink>
 
-        <p>❓ Support</p>
+        {/* Optional: logout (recommended) */}
+        <p onClick={() => {
+          localStorage.removeItem("token");
+          window.location.href = "/";
+        }}>
+          🚪 Logout
+        </p>
+                   <img src={logo} alt="Trinity Logo" className="sidebar-logo" />
+
       </div>
     </div>
   );

@@ -1,42 +1,46 @@
 /* ===== LAYOUT ===== */
 .layout {
   display: flex;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #000000, #0A0F1C);
 }
 
-/* Sidebar safety */
 .sidebar {
   min-width: 220px;
   flex-shrink: 0;
 }
 
-/* Main content */
+/* ===== MAIN CONTENT ===== */
 .main-content {
   flex: 1;
   padding: 40px;
-  background: #020617;
+  background: transparent;
   color: white;
-  min-height: 100vh;
   font-family: "Segoe UI", sans-serif;
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER CARD ===== */
 .header-card {
-  background: linear-gradient(90deg, #020617, #0a0f2c);
+  background: linear-gradient(90deg, #0A0F1C, #000000);
   padding: 30px;
   border-radius: 12px;
-  border-left: 4px solid #6366f1;
-  margin-bottom: 25px;
+  border-left: 4px solid #1E6F9F;
+  margin-bottom: 30px;
+  box-shadow: 0 0 20px rgba(30, 111, 159, 0.15);
 }
 
 .tag {
   font-size: 12px;
-  color: #8b5cf6;
+  color: #4FC3F7;
   letter-spacing: 1px;
 }
 
 .header-card h1 {
-  font-size: 42px;
+  font-size: 40px;
   margin: 10px 0;
+  background: linear-gradient(90deg, #4FC3F7, #1E6F9F);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
@@ -48,30 +52,38 @@
 .tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .tabs button {
   padding: 10px 18px;
   border-radius: 10px;
-  border: none;
-  background: #111827;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  background: transparent;
   color: #aaa;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.tabs button:hover {
+  background: rgba(79, 195, 247, 0.1);
+  color: white;
 }
 
 .tabs .active {
-  background: #6366f1;
+  background: linear-gradient(90deg, #1E6F9F, #4FC3F7);
   color: white;
+  box-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
 }
 
 /* ===== MATCH CARD ===== */
 .match-card {
-  background: #020617;
-  border: 1px solid rgba(255,255,255,0.05);
+  background: #0F172A;
   border-radius: 14px;
   padding: 20px;
   margin-bottom: 25px;
+  border: 1px solid rgba(79, 195, 247, 0.1);
+  box-shadow: 0 0 20px rgba(79, 195, 247, 0.05);
 }
 
 /* Header */
@@ -84,10 +96,10 @@
 }
 
 .live {
-  color: #f97316;
+  color: #4FC3F7;
 }
 
-/* Teams */
+/* ===== TEAMS ===== */
 .teams {
   display: flex;
   justify-content: space-between;
@@ -99,26 +111,31 @@
   text-align: center;
 }
 
-/* 🔥 FIXED: renamed from .logo → .team-logo */
+/* Team logo */
 .team-logo {
   width: 60px;
   height: 60px;
-  background: #0a0f2c;
+  background: linear-gradient(135deg, #000000, #0A0F1C);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: auto;
   font-weight: bold;
+  color: #4FC3F7;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  box-shadow: 0 0 10px rgba(79, 195, 247, 0.1);
 }
 
 .vs {
-  color: #888;
+  color: #4FC3F7;
+  font-weight: bold;
 }
 
 /* Time */
 .time {
   text-align: center;
+  color: #aaa;
 }
 
 /* ===== BETS ===== */
@@ -131,10 +148,11 @@
   flex: 1;
   padding: 20px;
   border-radius: 12px;
-  background: #111827;
+  background: #020617;
   text-align: center;
   cursor: pointer;
   transition: 0.3s;
+  border: 1px solid rgba(79, 195, 247, 0.1);
 }
 
 .bet p {
@@ -147,58 +165,63 @@
 }
 
 /* Active bet */
-.bet.active {
-  background: linear-gradient(90deg, #6366f1, #818cf8);
+.bet.active,
+.active-bet {
+  background: linear-gradient(90deg, #1E6F9F, #4FC3F7);
   color: white;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(79, 195, 247, 0.4);
 }
 
 /* Hover */
 .bet:hover {
-  transform: scale(1.02);
+  transform: scale(1.03);
+  background: rgba(79, 195, 247, 0.08);
 }
 
-
-/* for admin side */
+/* ===== ADMIN INPUTS ===== */
 .match-card input,
 .match-card select {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  background: #020617;
+  color: white;
 }
 
 .match-card button {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  background: black;
+  background: linear-gradient(90deg, #1E6F9F, #4FC3F7);
   color: white;
   cursor: pointer;
+  border: none;
+  transition: 0.3s;
 }
 
+.match-card button:hover {
+  box-shadow: 0 0 10px rgba(79, 195, 247, 0.4);
+}
 
 .match-card h3 {
   margin-bottom: 10px;
 }
+
+/* ===== REMOVE USER BUTTON ===== */
 .remove-user-btn {
-  width: auto !important;   /* 🔥 override 100% */
+  width: auto !important;
   display: inline-block;
   background: #e53935;
   color: white;
   border: none;
-  padding: 4px 8px;      /* smaller */
-  font-size: 12px;       /* smaller text */
-  border-radius: 4px;    /* tighter */
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
 .remove-user-btn:hover {
   background: #c62828;
-}
-
-.active-bet {
-  background: rgb(34, 41, 75);
-  color: white;
-  transform: scale(1.05);
-  border: 2px solid rgb(255, 255, 255);
 }

@@ -1,6 +1,7 @@
 import "./leaderboard.css";
 import Sidebar from "../components/sidebar";
 import { useEffect, useState } from "react";
+// import logo from "../assets/logo.jpg";
 
 function Leaderboard() {
   const [players, setPlayers] = useState([]);
@@ -42,8 +43,18 @@ function Leaderboard() {
       <div className="main-content">
         {/* HEADER */}
         <div className="header-card">
-          <p className="season">SEASON 2024</p>
-          <h1>IPL LEADERBOARD</h1>
+
+          {/* LOGO + TITLE */}
+          <div className="header-top">
+
+            <div>
+              <p className="season">SEASON 2026</p>
+              <h1>IPL LEADERBOARD</h1>
+            </div>
+              {/* <img src={logo} alt="Trinity Logo" className="logo" /> */}
+
+          </div>
+
           <p className="subtitle">
             Track the elite performers of the Digital Arena. Every wicket, every
             boundary, and every tactical bet counts toward the ultimate crown.

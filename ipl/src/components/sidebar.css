@@ -2,23 +2,30 @@
 .sidebar {
   width: 220px;
   height: 100vh;
-  background: linear-gradient(180deg, #0a0f2c, #020617);
+  /* background: linear-gradient(180deg, #000000, #0A0F1C);  dark one */
+  background: linear-gradient(180deg, #0F172A, #020617);
+
   color: white;
   padding: 20px;
 
   display: flex;
   flex-direction: column;
 
-  /* 🔥 KEY FIX: sticky instead of fixed */
   position: sticky;
   top: 0;
+
+  border-right: 1px solid rgba(79, 195, 247, 0.1); /* subtle glow edge */
 }
 
-/* ===== LOGO ===== */
-.logo {
+/* ===== LOGO TEXT ===== */
+.logo-text {
   font-size: 18px;
   margin-bottom: 30px;
   font-weight: bold;
+  text-align: center;
+
+  color: #4FC3F7; /* 🔥 brand blue */
+  letter-spacing: 1px;
 }
 
 /* ===== MENU ===== */
@@ -28,7 +35,6 @@
   margin: 0;
 }
 
-/* Remove link style */
 .menu a {
   text-decoration: none;
   display: block;
@@ -42,18 +48,22 @@
   cursor: pointer;
   color: #aaa;
   transition: 0.3s;
+
+  border: 1px solid transparent;
 }
 
 /* Active */
 .menu li.active {
-  background: #1e2a78;
+  background: linear-gradient(90deg, #1E6F9F, #4FC3F7); /* 🔥 gradient highlight */
   color: #fff;
+  box-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
 }
 
 /* Hover */
 .menu li:hover {
-  background: #162060;
+  background: rgba(79, 195, 247, 0.1);
   color: #fff;
+  border: 1px solid rgba(79, 195, 247, 0.3);
 }
 
 /* ===== BOTTOM SECTION ===== */
@@ -62,11 +72,12 @@
   font-size: 14px;
   color: #aaa;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(79, 195, 247, 0.15);
   padding-top: 15px;
+
+  text-align: center;
 }
 
-/* Remove underline */
 .bottom a {
   text-decoration: none;
   display: block;
@@ -82,11 +93,29 @@
 
 /* Hover */
 .bottom p:hover {
-  color: #fff;
+  color: #4FC3F7;
 }
 
 /* Active reset */
 .active-bottom {
-  color: #fff;
+  color: #4FC3F7;
   font-weight: bold;
+}
+
+/* ===== SIDEBAR IMAGE LOGO ===== */
+.sidebar-logo {
+  width: 110px;
+  display: block;
+  margin: 20px auto 0;
+
+  filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.3)); /* 🔥 glow */
+  opacity: 0.9;
+}
+
+.sidebar-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+  transition: 0.3s ease;
+  filter: drop-shadow(0 0 12px rgba(79, 195, 247, 0.6));
+
 }
