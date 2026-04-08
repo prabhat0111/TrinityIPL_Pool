@@ -110,6 +110,7 @@ function EnterResult() {
                     <React.Fragment key={m.id}>
                       <option value={m.team1}>{m.team1}</option>
                       <option value={m.team2}>{m.team2}</option>
+                      <option value="No Result">No Result / Abandoned</option>
                     </React.Fragment>
                   ))}
             </select>

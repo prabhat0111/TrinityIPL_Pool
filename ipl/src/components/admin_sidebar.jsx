@@ -51,13 +51,13 @@ function Admin_Sidebar() {
       {/* ===== BOTTOM ===== */}
       <div className="bottom">
         
-        <NavLink to="/resetpass">
+        {/* <NavLink to="/resetpass">
           {({ isActive }) => (
             <p className={isActive ? "active-bottom" : ""}>
               🔐 Reset Password
             </p>
           )}
-        </NavLink>
+        </NavLink> */}
 
         {/* Optional: logout (recommended) */}
         <p onClick={() => {

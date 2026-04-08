@@ -256,14 +256,14 @@ def update_match_status():
             WHERE status='live' AND result IS NOT NULL
         """)
 
-        # ✅ ASSIGN POINTS (IMPORTANT)
-        # Give 1 point if user picked winning team
+        # ✅ ASSIGN POINTS for matches with a winner only
         cur.execute("""
             UPDATE picks p
             SET points = 1
             FROM matches m
             WHERE p.match_id = m.id
             AND m.status = 'completed'
+            AND m.result != 'No Result'
             AND p.selected_team = m.result
         """)
 
@@ -485,22 +485,32 @@ def enter_result(data: dict, user=Depends(admin_required), db=Depends(get_db)):
             raise HTTPException(status_code=404, detail="Match not found")
 
         team1, team2, status = match
-        if result not in [team1, team2]:
-            raise HTTPException(status_code=400, detail="Result must be one of the playing teams")
+        if result not in [team1, team2, "No Result"]:
+            raise HTTPException(status_code=400, detail="Result must be one of the playing teams or 'No Result'")
 
         cur.execute(
             "UPDATE matches SET result=%s, status='completed' WHERE id=%s",
             (result, match_id)
         )
 
-        cur.execute("""
-            UPDATE picks p
-            SET points = 1
-            FROM matches m
-            WHERE p.match_id = m.id
-            AND m.id=%s
-            AND p.selected_team = %s
-        """, (match_id, result))
+        if result in [team1, team2]:
+            # Normal case: winning team
+            cur.execute("""
+                UPDATE picks p
+                SET points = 1
+                FROM matches m
+                WHERE p.match_id = m.id
+                AND m.id=%s
+                AND p.selected_team = %s
+            """, (match_id, result))
+        else:
+            # No Result: everyone gets 0 points
+            cur.execute("""
+                UPDATE picks p
+                SET points = 0
+                WHERE p.match_id = %s
+            """, (match_id,))
+
 
         db.commit()
         return {"message": f"Match result updated to {result}"}
