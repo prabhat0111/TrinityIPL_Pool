@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 function Leaderboard() {
   const [players, setPlayers] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(5);
+
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -61,6 +63,39 @@ function Leaderboard() {
           </p>
         </div>
 
+        {/* PODIUM TOP 3 */}
+        <div className="podium">
+          {[...players].sort((a, b) => a.rank - b.rank).slice(0, 3).map((p, index) => {
+            const order = ["first", "second", "third"];
+
+            return (
+              // <div className={`podium-col ${order[index]}`} key={p.name}>
+              <div
+                  className={`podium-col ${order[index]} ${
+                    index === 0 ? "winner-glow" : ""
+                  }`}
+                  key={p.name}
+                >
+                
+                {/* Trophy */}
+                <div className="trophy">
+                  {/* {index === 1 ? "👑" : index === 0 ? "🥈" : "🥉"} */}
+                  {index === 0 ? "👑" : index === 1 ? "🥈" : "🥉"}
+                </div>
+
+                {/* Name */}
+                <p className="podium-name">{p.name}</p>
+
+                {/* Block */}
+                <div className="podium-box">
+                  
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+
         {/* TABLE */}
         <div className="table-card">
           <div className="table-header">
@@ -69,7 +104,8 @@ function Leaderboard() {
             <span className="points">TOTAL POINTS</span>
           </div>
 
-          {players.map((p, index) => (
+          {/* {players.map((p, index) => ( */}
+          {players.slice(0, visibleCount).map((p, index) => (
             // <div className="row" key={index}>
               <div className="row" key={p.name}>
               <div className="rank">
@@ -90,7 +126,15 @@ function Leaderboard() {
             </div>
           ))}
 
-          <button className="load-btn">LOAD MORE PLAYERS</button>
+          {/* <button className="load-btn">LOAD MORE PLAYERS</button> */}
+          {players.length > 5 && visibleCount < players.length && (
+            <button
+              className="load-btn"
+              onClick={() => setVisibleCount(players.length)}
+            >
+              LOAD MORE PLAYERS
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -105,7 +105,7 @@ function AdminUsers() {
         </div>
 
         {/* User List */}
-        <div className="match-card">
+        <div className="match-card1">
           <h3>Existing Users</h3>
 
           {users.map(u => (

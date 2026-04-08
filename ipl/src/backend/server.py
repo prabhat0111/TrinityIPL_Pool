@@ -641,6 +641,100 @@ def get_match_by_id(match_id: int, user=Depends(get_current_user), db=Depends(ge
     finally:
         cur.close()
 
+@app.get("/dashboard")
+def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        user_id = user["id"]
+
+        # 🔴 Pending (today & no pick)
+        cur.execute("""
+            SELECT m.id, m.team1, m.team2
+            FROM matches m
+            LEFT JOIN picks p 
+                ON m.id = p.match_id AND p.user_id = %s
+            WHERE m.status = 'today' AND p.id IS NULL
+        """, (user_id,))
+
+        pending = [
+            {"id": r[0], "team1": r[1], "team2": r[2]}
+            for r in cur.fetchall()
+]
+        # 📜 Past (ALL completed matches)
+        cur.execute("""
+            SELECT m.team1, m.team2, m.result, p.selected_team
+            FROM matches m
+            LEFT JOIN picks p 
+                ON m.id = p.match_id AND p.user_id = %s
+            WHERE m.status = 'completed'
+            ORDER BY m.match_time DESC
+        """, (user_id,))
+
+        past = []
+        correct = 0
+        wrong = 0
+
+        for r in cur.fetchall():
+            team1, team2, result, selected = r
+
+            if selected is None:
+                status = "no_pick"
+            elif result == "No Result":
+                status = "no_result"
+            elif selected == result:
+                status = "win"
+                correct += 1
+            else:
+                status = "lose"
+                wrong += 1
+
+            past.append({
+                "team1": team1,
+                "team2": team2,
+                "status": status
+            })
+
+        # 🏆 Total points
+        cur.execute("""
+            SELECT COALESCE(SUM(points), 0)
+            FROM picks
+            WHERE user_id = %s
+        """, (user_id,))
+        points = cur.fetchone()[0]
+
+        # 🏅 Rank
+        cur.execute("""
+            SELECT u.id, COALESCE(SUM(p.points), 0) as total_points
+            FROM users u
+            LEFT JOIN picks p ON u.id = p.user_id
+            WHERE u.role = 'user'
+            GROUP BY u.id
+            ORDER BY total_points DESC
+        """)
+
+        rows = cur.fetchall()
+        rank = 1
+        user_rank = None
+
+        for r in rows:
+            if r[0] == user_id:
+                user_rank = rank
+                break
+            rank += 1
+
+        return {
+            "pending": pending,
+            "past": past,
+            "points": points,
+            "correct": correct,
+            "wrong": wrong,
+            "rank": user_rank
+        }
+
+    finally:
+        cur.close()
+
 if __name__ == "__main__":
     uvicorn.run(
         "server:app",

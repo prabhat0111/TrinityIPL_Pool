@@ -84,8 +84,15 @@ function Admin() {
       {/* ✅ NO BETTING HERE */}
       <div className="bets">
         {match.status === "completed" ? (
+          // <div className="result">
+          //   Result: {match.result || "TBD"}
+          // </div>
           <div className="result">
-            Result: {match.result || "TBD"}
+            {!match.result
+            ? "Result: TBD"
+            : match.result === "No Result"
+            ? "Match Abandoned / No Result"
+            : `${match.result} won the match`}
           </div>
         ) : match.status === "live" ? (
           <p>Match is live</p>

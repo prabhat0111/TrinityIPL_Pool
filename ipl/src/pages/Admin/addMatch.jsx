@@ -79,10 +79,28 @@ function AddMatch() {
 
             <input
               type="datetime-local"
+              className="data-input"
               value={matchTime}
               onChange={(e) => setMatchTime(e.target.value)}
               required
+              style={{
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                padding: '12px',
+                fontSize: '14px',
+              }}
             />
+
+            {/* Force calendar icon to white */}
+            <style>
+              {`
+                .data-input::-webkit-calendar-picker-indicator {
+                  filter: invert(100%) !important;
+                }
+              `}
+            </style>
 
             <br /><br />
 

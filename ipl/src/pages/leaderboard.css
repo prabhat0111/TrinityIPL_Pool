@@ -274,6 +274,101 @@ html, body, #root {
   background: #c62828 !important;
 }
 
+/* ===== PODIUM ===== */
+/* ===== PODIUM CONTAINER ===== */
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 20px;
+  margin: 40px 0;
+}
+
+/* Each column */
+.podium-col {
+  text-align: center;
+  color: white;
+}
+
+/* Trophy */
+.trophy {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+/* Name */
+.podium-name {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Base box */
+.podium-box {
+  width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px 10px 0 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Rank text */
+.podium-rank {
+  color: white;
+}
+
+/* ===== POSITION STYLES ===== */
+
+/* FIRST (CENTER BIG) */
+.podium-col.first {
+  order: 2;
+}
+.podium-col.first .podium-box {
+  height: 120px;
+  background: linear-gradient(180deg, #facc15, #eab308);
+}
+
+/* SECOND (LEFT) */
+.podium-col.second {
+  order: 1;
+}
+.podium-col.second .podium-box {
+  height: 90px;
+  background: linear-gradient(180deg, #cbd5f5, #94a3b8);
+}
+
+/* THIRD (RIGHT) */
+.podium-col.third {
+  order: 3;
+}
+.podium-col.third .podium-box {
+  height: 70px;
+  background: linear-gradient(180deg, #f59e0b, #b45309);
+}
+
+/* Winner Glow */
+.winner-glow {
+  transform: scale(1.08);
+}
+
+.winner-glow .trophy {
+  text-shadow: 0 0 12px gold, 0 0 25px rgba(255, 215, 0, 0.8);
+}
+
+/* Rank Colors */
+.podium-rank.gold {
+  color: gold;
+}
+
+.podium-rank.silver {
+  color: #c0c0c0;
+}
+
+.podium-rank.bronze {
+  color: #cd7f32;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .layout { flex-direction: column !important; }

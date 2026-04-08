@@ -101,8 +101,9 @@ function Matches() {
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team1 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team1)}
             >
-              <p>BET ON {match.team1}</p>
-              <h2>1.9</h2>
+              {/* <p><h2>BET ON {match.team1}</h2></p> */}
+              <h4 style={{ color: "white" }}>BET ON {match.team1}</h4>
+              {/* <h2>1.9</h2> */}
             </div>
 
             {/* <div className="bet" onClick={() => placePick(match.id, match.team2)}> */}
@@ -110,8 +111,9 @@ function Matches() {
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team2 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team2)}
             >
-              <p>BET ON {match.team2}</p>
-              <h2>2.0</h2>
+              {/* <p><h2>BET ON {match.team2}</h2></p> */}
+              <h4 style={{ color: "white" }}>BET ON {match.team2}</h4>
+              {/* <h2>2.0</h2> */}
             </div>
           </>
         ) : match.status === "completed" ? (

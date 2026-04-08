@@ -35,7 +35,7 @@ function Login() {
         if (data.user.role === "admin") {
           window.location.href = "/admin";
         } else {
-          window.location.href = "/leaderboard";
+          window.location.href = "/dashboard";
         }
       } else {
         alert(data.detail);
