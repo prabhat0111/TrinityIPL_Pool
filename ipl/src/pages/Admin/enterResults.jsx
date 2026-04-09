@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { BASE_URL } from "../config";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 function EnterResult() {
   const [matches, setMatches] = useState([]);
@@ -9,15 +10,17 @@ function EnterResult() {
   const [result, setResult] = useState("");
 
   const fetchMatches = async () => {
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
     try {
       // const res = await fetch("http://localhost:8000/matches?status=live", {
-      const res = await fetch(`${BASE_URL}/matches?status=live`, {
+      // const res = await fetch(`${BASE_URL}/matches?status=live`, {
 
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+
+      const res = await fetchWithAuth("/matches?status=live");
 
       const data = await res.json();
       if (res.ok) {
@@ -42,17 +45,26 @@ function EnterResult() {
       return;
     }
 
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
 
     try {
       // const res = await fetch("http://localhost:8000/admin/enter-result", {
-      const res = await fetch(`${BASE_URL}/admin/enter-result`, {
+      // const res = await fetch(`${BASE_URL}/admin/enter-result`, {
 
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     match_id: selectedMatch,
+      //     result: result,
+      //   }),
+      // });
+      
+      // token 
+      const res = await fetchWithAuth("/admin/enter-result", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           match_id: selectedMatch,
           result: result,

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./resetpass.css";
 import Sidebar from "../components/sidebar";
 import { BASE_URL } from "./config";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 function ResetPass() {
   const [showOld, setShowOld] = useState(false);
@@ -16,9 +17,14 @@ function ResetPass() {
 
       try {
         // const res = await fetch("http://localhost:8000/profile", {
-        const res = await fetch(`${BASE_URL}/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+
+        // const res = await fetch(`${BASE_URL}/profile`, {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+
+        // token 
+        const res = await fetchWithAuth("/profile");
+        // token 
 
         const data = await res.json();
         if (res.ok) setUser(data);
@@ -56,18 +62,29 @@ function ResetPass() {
 
     try {
       // const res = await fetch("http://localhost:8000/reset-password", {
-      const res = await fetch(`${BASE_URL}/reset-password`, {
+      // const res = await fetch(`${BASE_URL}/reset-password`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     email: user.email, // auto-filled
+      //     oldPassword,
+      //     newPassword,
+      //   }),
+      // });
+
+      // token 
+      const res = await fetchWithAuth("/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           email: user.email, // auto-filled
           oldPassword,
           newPassword,
         }),
       });
+      // token 
 
       const data = await res.json();
 

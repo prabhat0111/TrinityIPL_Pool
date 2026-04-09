@@ -2,29 +2,48 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "./profile.css";
 import { BASE_URL } from "./config";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 function Profile() {
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
 
+  // useEffect(() => {
+  //   // fetch("http://localhost:8000/profile", {
+  //     fetch(`${BASE_URL}/profile`, {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`
+  //     }
+  //   })
+  //     .then(res => {
+  //       if (!res.ok) throw new Error("Failed to fetch user");
+  //       return res.json();
+  //     })
+  //     .then(data => setUser(data))
+  //     .catch(err => {
+  //       console.error(err);
+  //       alert("Session expired. Please login again.");
+  //       localStorage.removeItem("token");
+  //       window.location.href = "/";
+  //     });
+  // }, []);
+
+  // token 
   useEffect(() => {
-    // fetch("http://localhost:8000/profile", {
-      fetch(`${BASE_URL}/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(res => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetchWithAuth("/profile");
         if (!res.ok) throw new Error("Failed to fetch user");
-        return res.json();
-      })
-      .then(data => setUser(data))
-      .catch(err => {
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
         console.error(err);
         alert("Session expired. Please login again.");
         localStorage.removeItem("token");
         window.location.href = "/";
-      });
+      }
+    };
+    fetchUser();
   }, []);
 
   if (!user) {

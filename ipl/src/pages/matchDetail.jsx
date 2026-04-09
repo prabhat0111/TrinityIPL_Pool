@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "./matchDetail.css";
 import { BASE_URL } from "./config";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 function MatchDetail() {
   const { id } = useParams();
@@ -21,9 +22,11 @@ function MatchDetail() {
 
         // Fetch match
         // const matchRes = await fetch(`http://localhost:8000/matches/${id}`, {
-        const matchRes = await fetch(`${BASE_URL}/matches/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // const matchRes = await fetch(`${BASE_URL}/matches/${id}`, {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+
+        const matchRes = await fetchWithAuth(`/matches/${id}`);
         const matchData = await matchRes.json();
 
         console.log("MATCH DATA:", matchData);
@@ -33,9 +36,12 @@ function MatchDetail() {
 
         // Fetch picks
         // const picksRes = await fetch(`http://localhost:8000/matches/${id}/picks`, {
-        const picksRes = await fetch(`${BASE_URL}/matches/${id}/picks`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // const picksRes = await fetch(`${BASE_URL}/matches/${id}/picks`, {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+
+        const picksRes = await fetchWithAuth(`/matches/${id}/picks`);
+        
         const picksData = await picksRes.json();
 
         console.log("PICKS DATA:", picksData);

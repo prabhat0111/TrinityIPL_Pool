@@ -3,6 +3,7 @@ import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "./config";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 
 const TEAM_FULL_NAMES = {
@@ -30,9 +31,13 @@ function Matches() {
     const fetchMatches = async () => {
       try {
         // const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
-          const res = await fetch(`${BASE_URL}/matches?status=${tab}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        //   const res = await fetch(`${BASE_URL}/matches?status=${tab}`, {
+        //   headers: { Authorization: `Bearer ${token}` }
+        // });
+        
+        // token 
+        const res = await fetchWithAuth(`/matches?status=${tab}`);
+
         const data = await res.json();
         setMatches(data);
       } catch (err) {
@@ -44,9 +49,12 @@ function Matches() {
     const fetchLiveMatches = async () => {
       try {
         // const res = await fetch(`http://localhost:8000/matches?status=live`, {
-          const res = await fetch(`${BASE_URL}/matches?status=live`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        //   const res = await fetch(`${BASE_URL}/matches?status=live`, {
+        //   headers: { Authorization: `Bearer ${token}` }
+        // });
+        // token 
+        const res = await fetchWithAuth(`/matches?status=live`);
+
         const data = await res.json();
         setLiveMatches(data);
       } catch (err) {
@@ -156,12 +164,21 @@ function Matches() {
 
     try {
       // const res = await fetch("http://localhost:8000/pick", {
-      const res = await fetch(`${BASE_URL}/pick`, {
+      // const res = await fetch(`${BASE_URL}/pick`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     match_id: matchId,
+      //     selected_team: team,
+      //   }),
+      // });
+      
+      // token 
+      const res = await fetchWithAuth("/pick", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           match_id: matchId,
           selected_team: team,

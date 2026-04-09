@@ -2,6 +2,7 @@ import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { useState, useEffect } from "react";
 import { BASE_URL } from "../config";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 const TEAM_FULL_NAMES = {
   RCB: "Royal Challengers Bangalore",
@@ -21,15 +22,18 @@ function Admin() {
   const [matches, setMatches] = useState([]);
   const [liveMatches, setLiveMatches] = useState([]);
 
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchMatches = async () => {
       try {
         // const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
-        const res = await fetch(`${BASE_URL}/matches?status=${tab}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // const res = await fetch(`${BASE_URL}/matches?status=${tab}`, {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+
+        const res = await fetchWithAuth(`/matches?status=${tab}`);
+
         const data = await res.json();
         setMatches(data);
       } catch (err) {
@@ -41,9 +45,12 @@ function Admin() {
     const fetchLiveMatches = async () => {
       try {
         // const res = await fetch(`http://localhost:8000/matches?status=live`, {
-          const res = await fetch(`${BASE_URL}/matches?status=live`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        //   const res = await fetch(`${BASE_URL}/matches?status=live`, {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
+
+        const res = await fetchWithAuth("/matches?status=live");
+        
         const data = await res.json();
         setLiveMatches(data);
       } catch (err) {

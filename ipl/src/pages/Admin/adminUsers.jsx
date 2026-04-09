@@ -1,7 +1,8 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import React, { useEffect, useState } from "react";
-import { BASE_URL } from "../config";
+// import { BASE_URL } from "../config";
+import { fetchWithAuth } from "../../utils/fetchWithAuth";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -10,15 +11,18 @@ function AdminUsers() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
 
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   // Fetch users
   const fetchUsers = async () => {
     // const res = await fetch("http://localhost:8000/admin/get-users", {
-    const res = await fetch(`${BASE_URL}/admin/get-users`, {
+    // const res = await fetch(`${BASE_URL}/admin/get-users`, {
 
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    //   headers: { Authorization: `Bearer ${token}` },
+    // });
+    // token 
+    const res = await fetchWithAuth("/admin/get-users");
+
     const data = await res.json();
     setUsers(data);
   };
@@ -31,12 +35,18 @@ function AdminUsers() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     // const res = await fetch("http://localhost:8000/admin/add-user", {
-    const res = await fetch(`${BASE_URL}/admin/add-user`, {
+    // const res = await fetch(`${BASE_URL}/admin/add-user`, {
 
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    //   body: JSON.stringify({ name, email, password, role }),
+    // });
+    // token 
+    const res = await fetchWithAuth("/admin/add-user", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ name, email, password, role }),
     });
+
     const data = await res.json();
     if (res.ok) {
       alert("User added ✅");
@@ -51,9 +61,15 @@ function AdminUsers() {
   const handleRemoveUser = async (userId) => {
     if (!window.confirm("Are you sure?")) return;
     // const res = await fetch("http://localhost:8000/admin/remove-user", {
-    const res = await fetch(`${BASE_URL}/admin/remove-user`, {
+    // const res = await fetch(`${BASE_URL}/admin/remove-user`, {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    //   body: JSON.stringify({ user_id: userId }),
+    // });
+
+    // token 
+    const res = await fetchWithAuth("/admin/remove-user", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ user_id: userId }),
     });
     const data = await res.json();

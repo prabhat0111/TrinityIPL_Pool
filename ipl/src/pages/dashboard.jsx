@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "./dashboard.css";
 import { BASE_URL } from "./config";
+import { fetchWithAuth } from "../utils/fetchWithAuth"; 
 
 function Dashboard() {
   const [pending, setPending] = useState([]);
@@ -23,27 +24,49 @@ function Dashboard() {
 
   const fetchDashboard = () => {
     // fetch("http://localhost:8000/dashboard", {
-    fetch(`${BASE_URL}/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` }
+
+    // fetch(`${BASE_URL}/dashboard`, {
+    //   headers: { Authorization: `Bearer ${token}` }
+    // })
+    //   .then(res => {
+    //     if (!res.ok) throw new Error();
+    //     return res.json();
+    //   })
+    //   .then(data => {
+    //     setPending(data.pending || []);
+    //     setPast(data.past || []);
+    //     setPoints(data.points || 0);
+    //     setCorrect(data.correct || 0);
+    //     setWrong(data.wrong || 0);
+    //     setRank(data.rank || "-");
+    //   })
+    //   .catch(() => {
+    //     alert("Session expired. Please login again.");
+    //     localStorage.removeItem("token");
+    //     window.location.href = "/";
+    //   });
+
+    // token
+    fetchWithAuth("/dashboard")
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
     })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(data => {
-        setPending(data.pending || []);
-        setPast(data.past || []);
-        setPoints(data.points || 0);
-        setCorrect(data.correct || 0);
-        setWrong(data.wrong || 0);
-        setRank(data.rank || "-");
-      })
-      .catch(() => {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("token");
-        window.location.href = "/";
-      });
+    .then(data => {
+      setPending(data.pending || []);
+      setPast(data.past || []);
+      setPoints(data.points || 0);
+      setCorrect(data.correct || 0);
+      setWrong(data.wrong || 0);
+      setRank(data.rank || "-");
+    })
+    .catch(() => {
+      alert("Session expired. Please login again.");
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    });
   };
+  // token 
 
   // ✅ SAFE TIME FORMATTER
   const formatTime = (time) => {
@@ -61,12 +84,22 @@ function Dashboard() {
   const handlePick = async (matchId, team) => {
     try {
       // const res = await fetch("http://localhost:8000/pick", {
-      const res = await fetch(`${BASE_URL}/pick`, {
+      
+      // const res = await fetch(`${BASE_URL}/pick`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify({
+      //     match_id: matchId,
+      //     selected_team: team,
+      //   }),
+      // });
+      
+      // token
+      const res = await fetchWithAuth("/pick", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           match_id: matchId,
           selected_team: team,
