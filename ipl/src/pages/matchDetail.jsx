@@ -142,7 +142,7 @@ function MatchDetail() {
               <p>No picks yet</p>
             ) : (
               team1Picks.map((p, i) => (
-                <div className="pick-row" key={i}>
+                <div className="pick-row1" key={i}>
                   <span className="avatar">
                     {p.username?.[0]?.toUpperCase() || "?"}
                   </span>
@@ -159,7 +159,7 @@ function MatchDetail() {
               <p>No picks yet</p>
             ) : (
               team2Picks.map((p, i) => (
-                <div className="pick-row" key={i}>
+                <div className="pick-row1" key={i}>
                   <span className="avatar">
                     {p.username?.[0]?.toUpperCase() || "?"}
                   </span>
@@ -177,7 +177,7 @@ function MatchDetail() {
                 <p>None ✅ - Everyone has placed a bet!</p>
             ) : (
                 noPickUsers.map((user, i) => (
-                <div className="pick-row" key={i}>
+                <div className="pick-row1" key={i}>
                     <span className="avatar">{user?.[0]?.toUpperCase() || "?"}</span>
                     <span>{user}</span>
                 </div>

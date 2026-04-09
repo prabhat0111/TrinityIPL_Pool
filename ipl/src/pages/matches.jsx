@@ -3,6 +3,18 @@ import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const TEAM_FULL_NAMES = {
+  RCB: "Royal Challengers Bangalore",
+  MI: "Mumbai Indians",
+  CSK: "Chennai Super Kings",
+  KKR: "Kolkata Knight Riders",
+  DC: "Delhi Capitals",
+  SRH: "Sunrisers Hyderabad",
+  RR: "Rajasthan Royals",
+  PBKS: "Punjab Kings",
+  GT : "Gujrat Titans",
+  LSG : "Lukhnow Super Giants",
+};
 
 function Matches() {
   const [tab, setTab] = useState("today"); // upcoming / today / completed
@@ -79,15 +91,19 @@ function Matches() {
 
       <div className="teams">
         <div className="team">
-          <div className="team-logo">{match.team1.slice(0,3).toUpperCase()}</div>
-          <p>{match.team1}</p>
+          <div className="team-logo">{match.team1}</div>
+          <p className="team-name">
+            {TEAM_FULL_NAMES[match.team1] || match.team1}
+          </p>
         </div>
 
         <div className="vs">VS</div>
 
         <div className="team">
-          <div className="team-logo">{match.team2.slice(0,3).toUpperCase()}</div>
-          <p>{match.team2}</p>
+          <div className="team-logo">{match.team2}</div>
+          <p className="team-name">
+            {TEAM_FULL_NAMES[match.team2] || match.team2}
+          </p>
         </div>
       </div>
 
@@ -185,7 +201,13 @@ function Matches() {
           <button onClick={() => setTab("completed")} className={tab==="completed" ? "active":""}>COMPLETED</button>
         </div>
 
-        {matches.map(renderMatch)}
+        {/* {matches.map(renderMatch)} */}
+        {
+          (tab === "completed"
+            ? [...matches].sort((a, b) => new Date(b.match_time) - new Date(a.match_time))
+            : matches
+          ).map(renderMatch)
+        }
       </div>
     </div>
   );

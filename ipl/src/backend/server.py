@@ -650,7 +650,7 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
 
         # 🔴 Pending (today & no pick)
         cur.execute("""
-            SELECT m.id, m.team1, m.team2
+            SELECT m.id, m.team1, m.team2, m.match_time
             FROM matches m
             LEFT JOIN picks p 
                 ON m.id = p.match_id AND p.user_id = %s
@@ -658,9 +658,14 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
         """, (user_id,))
 
         pending = [
-            {"id": r[0], "team1": r[1], "team2": r[2]}
+            {
+                "id": r[0],
+                "team1": r[1],
+                "team2": r[2],
+                "match_time": r[3].isoformat() if r[3] else None
+            }
             for r in cur.fetchall()
-]
+        ]
         # 📜 Past (ALL completed matches)
         cur.execute("""
             SELECT m.team1, m.team2, m.result, p.selected_team

@@ -92,58 +92,61 @@ function Dashboard() {
 
   // ✅ CLEAN MATCH CARD
   const renderMatch = (match) => (
-    <div className="match-card" key={match.id}>
-      
-      <div className="match-header">
-        <span>TODAY</span>
-        <span>{match.venue || "Stadium"}</span>
+  <div className="match-card" key={match.id}>
+
+    {/* HEADER */}
+    <div className="match-header">
+      <span>TODAY</span>
+      {/* <span>{match.venue || "STADIUM"}</span> */}
+    </div>
+
+    {/* TIME */}
+    <div className="time">
+      {formatTime(match.match_time)}
+    </div>
+
+    {/* TEAMS */}
+    <div className="teams">
+      <div className="team">
+        <div className="team-logo">
+          {match.team1}
+        </div>
+        {/* <p>{match.team1}</p> */}
       </div>
 
-      <div className="time">
-        <p>{formatTime(match.match_time)}</p>
-      </div>
+      <div className="vs">VS</div>
 
-      <div className="teams">
-        <div className="team">
-          <div className="team-logo">
-            {match.team1.slice(0, 3).toUpperCase()}
-          </div>
-          <p>{match.team1}</p>
+      <div className="team">
+        <div className="team-logo">
+          {match.team2}
         </div>
-
-        <div className="vs">VS</div>
-
-        <div className="team">
-          <div className="team-logo">
-            {match.team2.slice(0, 3).toUpperCase()}
-          </div>
-          <p>{match.team2}</p>
-        </div>
-      </div>
-
-      <div className="bets">
-        <div
-          className={`bet ${
-            userPicks[match.id] === match.team1 ? "active-bet" : ""
-          }`}
-          onClick={() => handlePick(match.id, match.team1)}
-        >
-          <p><h2>BET ON {match.team1}</h2></p>
-          {/* <h2>1.9</h2> */}
-        </div>
-
-        <div
-          className={`bet ${
-            userPicks[match.id] === match.team2 ? "active-bet" : ""
-          }`}
-          onClick={() => handlePick(match.id, match.team2)}
-        >
-          <p><h2>BET ON {match.team2}</h2></p>
-          {/* <h2>2.0</h2> */}
-        </div>
+        {/* <p>{match.team2}</p> */}
       </div>
     </div>
-  );
+
+    {/* BET BUTTONS */}
+    <div className="bets">
+      <button
+        className={`bet ${
+          userPicks[match.id] === match.team1 ? "active-bet" : ""
+        }`}
+        onClick={() => handlePick(match.id, match.team1)}
+      >
+        BET ON {match.team1}
+      </button>
+
+      <button
+        className={`bet ${
+          userPicks[match.id] === match.team2 ? "active-bet" : ""
+        }`}
+        onClick={() => handlePick(match.id, match.team2)}
+      >
+        BET ON {match.team2}
+      </button>
+    </div>
+
+  </div>
+);
 
   return (
     <div className="page dashboard-page">
