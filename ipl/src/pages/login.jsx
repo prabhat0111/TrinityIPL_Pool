@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./login.css";
+import logo from "../assets/logo.jpg";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +17,11 @@ function Login() {
     body.append("password", password);
 
     try {
-      const res = await fetch("http://localhost:8000/login", {
+      // ✅ FALLBACK FIX (IMPORTANT)
+      const API_URL =
+        import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -27,11 +32,9 @@ function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ store JWT token
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("role", data.user.role);
 
-        // ✅ redirect to dashboard
         if (data.user.role === "admin") {
           window.location.href = "/admin";
         } else {
@@ -48,13 +51,17 @@ function Login() {
 
   return (
     <div className="login-container">
-      <div className="overlay"></div>
-
       <form className="login-box" onSubmit={handleSubmit}>
-        <h2>WELCOME BACK</h2>
-        <p>Enter the arena and claim your winning streak</p>
+        
+        {/* LOGO */}
+        <div className="login-logo-container">
+          <img src={logo} alt="Logo" className="login-logo" />
+        </div>
 
-        {/* USERNAME / EMAIL */}
+        <p className="tag">WELCOME TO TRINITY IPL</p>
+        <h2>LOGIN</h2>
+
+        {/* USERNAME */}
         <div className="input-group">
           <label>USERNAME OR EMAIL</label>
           <div className="input-field">
@@ -76,7 +83,7 @@ function Login() {
             <input
               type={showPassword ? "text" : "password"}
               name="password"
-              placeholder="Enter Password"
+              placeholder="Enter password"
               required
             />
             <span
@@ -88,9 +95,9 @@ function Login() {
           </div>
         </div>
 
-        {/* SUBMIT */}
+        {/* BUTTON */}
         <button type="submit" className="login-btn">
-          SIGN IN →
+          ENTER ARENA →
         </button>
       </form>
     </div>
