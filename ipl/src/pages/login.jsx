@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./login.css";
 import logo from "../assets/logo.jpg";
+import { BASE_URL } from "./config";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,10 +19,12 @@ function Login() {
 
     try {
       // ✅ FALLBACK FIX (IMPORTANT)
-      const API_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:8000";
+      // const API_URL =
+      //   import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-      const res = await fetch(`${API_URL}/login`, {
+      // const res = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`${BASE_URL}/login`, {
+
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

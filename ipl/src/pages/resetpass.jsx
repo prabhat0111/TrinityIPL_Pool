@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./resetpass.css";
 import Sidebar from "../components/sidebar";
+import { BASE_URL } from "./config";
 
 function ResetPass() {
   const [showOld, setShowOld] = useState(false);
@@ -14,7 +15,8 @@ function ResetPass() {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await fetch("http://localhost:8000/profile", {
+        // const res = await fetch("http://localhost:8000/profile", {
+        const res = await fetch(`${BASE_URL}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,7 +55,8 @@ function ResetPass() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch("http://localhost:8000/reset-password", {
+      // const res = await fetch("http://localhost:8000/reset-password", {
+      const res = await fetch(`${BASE_URL}/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

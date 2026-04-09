@@ -1,6 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import React, { useEffect, useState } from "react";
+import { BASE_URL } from "../config";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -13,7 +14,9 @@ function AdminUsers() {
 
   // Fetch users
   const fetchUsers = async () => {
-    const res = await fetch("http://localhost:8000/admin/get-users", {
+    // const res = await fetch("http://localhost:8000/admin/get-users", {
+    const res = await fetch(`${BASE_URL}/admin/get-users`, {
+
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -27,7 +30,9 @@ function AdminUsers() {
   // Add user
   const handleAddUser = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:8000/admin/add-user", {
+    // const res = await fetch("http://localhost:8000/admin/add-user", {
+    const res = await fetch(`${BASE_URL}/admin/add-user`, {
+
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ name, email, password, role }),
@@ -45,7 +50,8 @@ function AdminUsers() {
   // Remove user
   const handleRemoveUser = async (userId) => {
     if (!window.confirm("Are you sure?")) return;
-    const res = await fetch("http://localhost:8000/admin/remove-user", {
+    // const res = await fetch("http://localhost:8000/admin/remove-user", {
+    const res = await fetch(`${BASE_URL}/admin/remove-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ user_id: userId }),

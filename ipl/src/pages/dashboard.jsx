@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "./dashboard.css";
+import { BASE_URL } from "./config";
 
 function Dashboard() {
   const [pending, setPending] = useState([]);
@@ -21,7 +22,8 @@ function Dashboard() {
   }, []);
 
   const fetchDashboard = () => {
-    fetch("http://localhost:8000/dashboard", {
+    // fetch("http://localhost:8000/dashboard", {
+    fetch(`${BASE_URL}/dashboard`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
@@ -58,7 +60,8 @@ function Dashboard() {
   // ✅ PICK
   const handlePick = async (matchId, team) => {
     try {
-      const res = await fetch("http://localhost:8000/pick", {
+      // const res = await fetch("http://localhost:8000/pick", {
+      const res = await fetch(`${BASE_URL}/pick`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

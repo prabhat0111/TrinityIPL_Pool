@@ -1,6 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { useState, useEffect } from "react";
+import { BASE_URL } from "../config";
 
 const TEAM_FULL_NAMES = {
   RCB: "Royal Challengers Bangalore",
@@ -12,7 +13,7 @@ const TEAM_FULL_NAMES = {
   RR: "Rajasthan Royals",
   PBKS: "Punjab Kings",
   GT : "Gujrat Titans",
-  LSG : "Lukhnow Super Giants",
+  LSG : "Luckhnow Super Giants",
 };
 
 function Admin() {
@@ -25,7 +26,8 @@ function Admin() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
+        // const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
+        const res = await fetch(`${BASE_URL}/matches?status=${tab}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -38,7 +40,8 @@ function Admin() {
 
     const fetchLiveMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=live`, {
+        // const res = await fetch(`http://localhost:8000/matches?status=live`, {
+          const res = await fetch(`${BASE_URL}/matches?status=live`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();

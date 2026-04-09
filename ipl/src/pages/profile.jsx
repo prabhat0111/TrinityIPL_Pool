@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "./profile.css";
+import { BASE_URL } from "./config";
 
 function Profile() {
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch("http://localhost:8000/profile", {
+    // fetch("http://localhost:8000/profile", {
+      fetch(`${BASE_URL}/profile`, {
       headers: {
         Authorization: `Bearer ${token}`
       }

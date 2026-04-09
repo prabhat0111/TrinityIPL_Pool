@@ -1,6 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { useState } from "react";
+import { BASE_URL } from "../config";
 
 function AddMatch() {
   const [team1, setTeam1] = useState("");
@@ -14,7 +15,8 @@ function AddMatch() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:8000/admin/add-match", {
+      // const res = await fetch("http://localhost:8000/admin/add-match", {
+      const res = await fetch(`${BASE_URL}/admin/add-match`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

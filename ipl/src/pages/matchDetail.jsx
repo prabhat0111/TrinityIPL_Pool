@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "./matchDetail.css";
+import { BASE_URL } from "./config";
 
 function MatchDetail() {
   const { id } = useParams();
@@ -19,7 +20,8 @@ function MatchDetail() {
         console.log("URL PARAM ID:", id);
 
         // Fetch match
-        const matchRes = await fetch(`http://localhost:8000/matches/${id}`, {
+        // const matchRes = await fetch(`http://localhost:8000/matches/${id}`, {
+        const matchRes = await fetch(`${BASE_URL}/matches/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const matchData = await matchRes.json();
@@ -30,7 +32,8 @@ function MatchDetail() {
         setMatch(matchData);
 
         // Fetch picks
-        const picksRes = await fetch(`http://localhost:8000/matches/${id}/picks`, {
+        // const picksRes = await fetch(`http://localhost:8000/matches/${id}/picks`, {
+        const picksRes = await fetch(`${BASE_URL}/matches/${id}/picks`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const picksData = await picksRes.json();

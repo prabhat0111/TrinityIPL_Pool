@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
+import { BASE_URL } from "../config";
 
 function EnterResult() {
   const [matches, setMatches] = useState([]);
@@ -10,7 +11,9 @@ function EnterResult() {
   const fetchMatches = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:8000/matches?status=live", {
+      // const res = await fetch("http://localhost:8000/matches?status=live", {
+      const res = await fetch(`${BASE_URL}/matches?status=live`, {
+
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -42,7 +45,9 @@ function EnterResult() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch("http://localhost:8000/admin/enter-result", {
+      // const res = await fetch("http://localhost:8000/admin/enter-result", {
+      const res = await fetch(`${BASE_URL}/admin/enter-result`, {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",

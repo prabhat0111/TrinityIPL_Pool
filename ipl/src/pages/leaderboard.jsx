@@ -2,6 +2,7 @@ import "./leaderboard.css";
 import Sidebar from "../components/sidebar";
 import { useEffect, useState } from "react";
 // import logo from "../assets/logo.jpg";
+import { BASE_URL } from "./config";
 
 function Leaderboard() {
   const [players, setPlayers] = useState([]);
@@ -13,7 +14,8 @@ function Leaderboard() {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await fetch("http://localhost:8000/leaderboard", {
+        // const res = await fetch("http://localhost:8000/leaderboard", {
+        const res = await fetch(`${BASE_URL}/leaderboard`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
