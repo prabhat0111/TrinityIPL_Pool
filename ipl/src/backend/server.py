@@ -8,6 +8,7 @@ from passlib.context import CryptContext
 from config import settings
 import os
 import uvicorn
+import hashlib
 from fastapi_utils.tasks import repeat_every  # add at the top if not already
 
 
@@ -50,7 +51,7 @@ def create_access_token(data: dict):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(plain, hashed):
+def verify_password(plain, hashed): 
     return pwd_context.verify(plain, hashed)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
@@ -119,7 +120,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
 
         # user_id, name, email, password_hash = user
         user_id, name, email, password_hash, role = user
-
         if not verify_password(form_data.password, password_hash):
             raise HTTPException(status_code=400, detail="Invalid password")
 
