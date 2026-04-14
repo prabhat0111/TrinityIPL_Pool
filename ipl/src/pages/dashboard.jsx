@@ -11,6 +11,8 @@ function Dashboard() {
   const [correct, setCorrect] = useState(0);
   const [wrong, setWrong] = useState(0);
   const [rank, setRank] = useState("-");
+  const [lastSync, setLastSync] = useState(null);
+
 
   const [userPicks, setUserPicks] = useState({});
 
@@ -18,7 +20,12 @@ function Dashboard() {
 
   useEffect(() => {
     fetchDashboard();
+    
+    // ✅ AUTO-REFRESH EVERY 30 SECONDS
+    const interval = setInterval(fetchDashboard, 30000);
+    return () => clearInterval(interval);
   }, []);
+
 
   const fetchDashboard = () => {
     fetch("http://localhost:8000/dashboard", {
@@ -35,7 +42,9 @@ function Dashboard() {
         setCorrect(data.correct || 0);
         setWrong(data.wrong || 0);
         setRank(data.rank || "-");
+        setLastSync(data.last_sync);
       })
+
       .catch(() => {
         alert("Session expired. Please login again.");
         localStorage.removeItem("token");
@@ -96,9 +105,17 @@ function Dashboard() {
 
     {/* HEADER */}
     <div className="match-header">
-      <span>TODAY</span>
+      {match.status === 'live' ? (
+        <span className="live-badge">
+          <div className="live-dot"></div>
+          LIVE
+        </span>
+      ) : (
+        <span>TODAY</span>
+      )}
       {/* <span>{match.venue || "STADIUM"}</span> */}
     </div>
+
 
     {/* TIME */}
     <div className="time">
@@ -157,7 +174,15 @@ function Dashboard() {
         <div className="dashboard-header">
           <h1>Dashboard</h1>
           <p>Track your performance</p>
+          
+          {lastSync && (
+            <div className="sync-status">
+              <div className="sync-dot"></div>
+              SYSTEM UPDATED: {new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </div>
+          )}
         </div>
+
 
         <div className="stats-row">
           <div className="mini-card">

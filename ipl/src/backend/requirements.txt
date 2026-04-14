@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic-settings
+fastapi-utils
+python-multipart
+typing-inspect

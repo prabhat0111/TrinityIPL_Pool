@@ -68,9 +68,11 @@ function Matches() {
       style={{ cursor: (match.status === "live" || match.status === "completed") ? "pointer" : "default" }}
     >
       <div className="match-header">
-        <span className={match.status === "live" ? "live" : ""}>
+        <span className={match.status === "live" ? "live-badge" : ""}>
+          {match.status === "live" && <div className="live-dot"></div>}
           {match.status.toUpperCase()}
         </span>
+
         <span>STADIUM</span>
       </div>
 

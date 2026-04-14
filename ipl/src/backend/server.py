@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg2.pool import SimpleConnectionPool
 from datetime import datetime, date, timedelta
@@ -10,16 +10,18 @@ import os
 import uvicorn
 from fastapi_utils.tasks import repeat_every  # add at the top if not already
 
-
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
+LAST_SYNC_TIME = datetime.utcnow() # Global to track background task
 
+
+ORIGINS = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or ["*"] for testing
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,12 +37,16 @@ pool = SimpleConnectionPool(
     port=settings.DATABASE_PORT
 )
 
+
+
 def get_db():
     conn = pool.getconn()
     try:
         yield conn
     finally:
         pool.putconn(conn)
+
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -53,7 +59,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
-def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
+def get_current_user(request: Request, token: str | None = Depends(oauth2_scheme), db=Depends(get_db)):
+    if token is None:
+        token = request.cookies.get("access_token")
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("user_id")
@@ -81,6 +93,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_db)):
         "role": user[3]
     }
 
+
+
 def admin_required(user=Depends(get_current_user)):
     if user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -100,9 +114,13 @@ def health():
 #         pool.putconn(conn)
 
 @app.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
-    cur = db.cursor()
+def login(
+    response: Response,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db=Depends(get_db),
+):
 
+    cur = db.cursor()
     try:
         # cur.execute(
         #     "SELECT id, name, email, password_hash FROM users WHERE email=%s",
@@ -129,6 +147,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
             "role": role
         })
 
+        if response is not None:
+            response.set_cookie(
+                key="access_token",
+                value=access_token,
+                httponly=True,
+                samesite="lax",
+                secure=False,
+                max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            )
+
         return {
             "access_token": access_token,
             "token_type": "bearer",
@@ -142,6 +170,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
 
     finally:
         cur.close()
+
+
         
 
 @app.get("/leaderboard")
@@ -230,11 +260,16 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
 
 @app.on_event("startup")
 @repeat_every(seconds=10)
+
+
 def update_match_status():
+    global LAST_SYNC_TIME
     conn = pool.getconn()
     cur = conn.cursor()
 
     try:
+        LAST_SYNC_TIME = datetime.utcnow()
+
         # upcoming -> today
         cur.execute("""
             UPDATE matches 
@@ -734,8 +769,10 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
             "points": points,
             "correct": correct,
             "wrong": wrong,
-            "rank": user_rank
+            "rank": user_rank,
+            "last_sync": LAST_SYNC_TIME.isoformat()
         }
+
 
     finally:
         cur.close()

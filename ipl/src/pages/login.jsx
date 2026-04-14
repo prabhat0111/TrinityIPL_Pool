@@ -27,7 +27,9 @@ function Login() {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: body,
+        credentials: "include", // ✅ Allow cookies
       });
+
 
       const data = await res.json();
 
