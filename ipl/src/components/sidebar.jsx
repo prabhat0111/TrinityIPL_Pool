@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { logout } from "../api";
 import "./sidebar.css";
 import logo from "../assets/logo.jpg";
 
@@ -43,12 +44,7 @@ function Sidebar() {
         </ul>
 
         <div className="bottom">
-          <p
-            onClick={() => {
-              localStorage.removeItem("token");
-              window.location.href = "/";
-            }}
-          >
+          <p onClick={logout}>
             🚪 Logout
           </p>
 

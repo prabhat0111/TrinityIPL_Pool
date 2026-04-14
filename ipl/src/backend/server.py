@@ -2,20 +2,27 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request, R
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg2.pool import SimpleConnectionPool
 from datetime import datetime, date, timedelta
-from jose import jwt, JWTError
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from config import settings
 import os
 import uvicorn
-from fastapi_utils.tasks import repeat_every  # add at the top if not already
+from fastapi_utils.tasks import repeat_every
+
+# ── Session management (JWT, cookies, refresh) ──
+from session import (
+    create_access_token,
+    decode_token,
+    extract_token,
+    set_auth_cookie,
+    clear_auth_cookie,
+    attach_refreshed_token,
+    oauth2_scheme,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
-SECRET_KEY = settings.SECRET_KEY
-ALGORITHM = settings.ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
-LAST_SYNC_TIME = datetime.utcnow() # Global to track background task
+LAST_SYNC_TIME = datetime.utcnow()  # Global to track background task
 
 
 ORIGINS = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
@@ -47,37 +54,33 @@ def get_db():
         pool.putconn(conn)
 
 
-
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
-def get_current_user(request: Request, token: str | None = Depends(oauth2_scheme), db=Depends(get_db)):
-    if token is None:
-        token = request.cookies.get("access_token")
 
-    if token is None:
+def get_current_user(
+    request: Request,
+    response: Response,
+    token: str | None = Depends(oauth2_scheme),
+    db=Depends(get_db),
+):
+    """
+    Extract and validate the JWT, look up the user in the DB,
+    and auto-refresh the token/cookie if it's nearing expiry.
+    """
+    # 1. Extract token (header → cookie fallback)
+    raw_token = token or request.cookies.get("access_token")
+    if raw_token is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+    # 2. Decode & validate
+    payload = decode_token(raw_token)
+    user_id = payload.get("user_id")
 
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
+    # 3. DB lookup
     cur = db.cursor()
-    # cur.execute("SELECT id, name, email FROM users WHERE id=%s", (user_id,))
     cur.execute("SELECT id, name, email, role FROM users WHERE id=%s", (user_id,))
     user = cur.fetchone()
     cur.close()
@@ -85,14 +88,20 @@ def get_current_user(request: Request, token: str | None = Depends(oauth2_scheme
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
-    # return user
+    # 4. Auto-refresh token if within refresh window
+    new_token = attach_refreshed_token(response, payload)
+    if new_token:
+        # Store in request state so endpoints can return it in body if desired
+        request.state.refreshed_token = new_token
+    else:
+        request.state.refreshed_token = None
+
     return {
         "id": user[0],
         "name": user[1],
         "email": user[2],
-        "role": user[3]
+        "role": user[3],
     }
-
 
 
 def admin_required(user=Depends(get_current_user)):
@@ -119,13 +128,8 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db=Depends(get_db),
 ):
-
     cur = db.cursor()
     try:
-        # cur.execute(
-        #     "SELECT id, name, email, password_hash FROM users WHERE email=%s",
-        #     (form_data.username,)
-        # )
         cur.execute(
             "SELECT id, name, email, password_hash, role FROM users WHERE email=%s",
             (form_data.username,)
@@ -135,7 +139,6 @@ def login(
         if not user:
             raise HTTPException(status_code=400, detail="User not found")
 
-        # user_id, name, email, password_hash = user
         user_id, name, email, password_hash, role = user
 
         if not verify_password(form_data.password, password_hash):
@@ -144,18 +147,11 @@ def login(
         access_token = create_access_token({
             "user_id": user_id,
             "email": email,
-            "role": role
+            "role": role,
         })
 
-        if response is not None:
-            response.set_cookie(
-                key="access_token",
-                value=access_token,
-                httponly=True,
-                samesite="lax",
-                secure=False,
-                max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            )
+        # Set httpOnly cookie with proper path
+        set_auth_cookie(response, access_token)
 
         return {
             "access_token": access_token,
@@ -164,12 +160,42 @@ def login(
                 "id": user_id,
                 "name": name,
                 "email": email,
-                "role": role
-            }
+                "role": role,
+            },
         }
 
     finally:
         cur.close()
+
+
+@app.get("/verify")
+def verify_session(
+    request: Request,
+    response: Response,
+    user=Depends(get_current_user),
+):
+    """
+    Lightweight endpoint the frontend calls on page load to check
+    if the current token is still valid. Also triggers auto-refresh.
+    Returns the user info and an optional refreshed token.
+    """
+    result = {
+        "valid": True,
+        "user": user,
+    }
+    refreshed = getattr(request.state, "refreshed_token", None)
+    if refreshed:
+        result["access_token"] = refreshed
+    return result
+
+
+@app.post("/logout")
+def logout(response: Response):
+    """
+    Clear the auth cookie. The frontend should also remove localStorage token.
+    """
+    clear_auth_cookie(response)
+    return {"message": "Logged out successfully"}
 
 
         
@@ -406,10 +432,7 @@ def get_users(user=Depends(admin_required), db=Depends(get_db)):
         return [{"id": u[0], "name": u[1], "email": u[2], "role": u[3]} for u in users]
     finally:
         cur.close()
-from fastapi import FastAPI, HTTPException, Depends
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# (pwd_context is defined above — duplicate imports removed)
 
 @app.post("/admin/add-user")
 def add_user(data: dict, user=Depends(admin_required), db=Depends(get_db)):

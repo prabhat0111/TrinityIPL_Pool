@@ -1,6 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { useState, useEffect } from "react";
+import { apiFetch } from "../../api";
 
 const TEAM_FULL_NAMES = {
   RCB: "Royal Challengers Bangalore",
@@ -20,31 +21,27 @@ function Admin() {
   const [matches, setMatches] = useState([]);
   const [liveMatches, setLiveMatches] = useState([]);
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
+        const data = await apiFetch(`/matches?status=${tab}`);
         setMatches(data);
       } catch (err) {
-        console.error(err);
-        alert("Error fetching matches");
+        if (err.message !== "Session expired") {
+          console.error(err);
+          alert("Error fetching matches");
+        }
       }
     };
 
     const fetchLiveMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=live`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
+        const data = await apiFetch(`/matches?status=live`);
         setLiveMatches(data);
       } catch (err) {
-        console.error(err);
+        if (err.message !== "Session expired") {
+          console.error(err);
+        }
       }
     };
 
@@ -102,9 +99,6 @@ function Admin() {
       {/* ✅ NO BETTING HERE */}
       <div className="bets">
         {match.status === "completed" ? (
-          // <div className="result">
-          //   Result: {match.result || "TBD"}
-          // </div>
           <div className="result">
             {!match.result
             ? "Result: TBD"
@@ -166,7 +160,6 @@ function Admin() {
         </div>
 
         {/* MATCH LIST */}
-        {/* {matches.map(renderMatch)} */}
         {
           (tab === "completed"
             ? [...matches].sort((a, b) => new Date(b.match_time) - new Date(a.match_time))

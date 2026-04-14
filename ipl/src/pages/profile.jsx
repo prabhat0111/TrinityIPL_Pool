@@ -1,27 +1,19 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
+import { apiFetch } from "../api";
 import "./profile.css";
 
 function Profile() {
   const [user, setUser] = useState(null);
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch("http://localhost:8000/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch user");
-        return res.json();
-      })
+    apiFetch("/profile")
       .then(data => setUser(data))
       .catch(err => {
-        console.error(err);
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("token");
-        window.location.href = "/";
+        // apiFetch handles 401 redirect automatically
+        if (err.message !== "Session expired") {
+          console.error(err);
+        }
       });
   }, []);
 

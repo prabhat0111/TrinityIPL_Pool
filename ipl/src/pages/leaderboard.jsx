@@ -1,7 +1,7 @@
 import "./leaderboard.css";
 import Sidebar from "../components/sidebar";
 import { useEffect, useState } from "react";
-// import logo from "../assets/logo.jpg";
+import { apiFetch } from "../api";
 
 function Leaderboard() {
   const [players, setPlayers] = useState([]);
@@ -10,26 +10,14 @@ function Leaderboard() {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      const token = localStorage.getItem("token");
-
       try {
-        const res = await fetch("http://localhost:8000/leaderboard", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          setPlayers(data);
-        } else {
-          alert("Session expired. Please login again.");
-          window.location.href = "/";
-        }
+        const data = await apiFetch("/leaderboard");
+        setPlayers(data);
       } catch (err) {
-        console.error(err);
-        alert("Error fetching leaderboard");
+        if (err.message !== "Session expired") {
+          console.error(err);
+          alert("Error fetching leaderboard");
+        }
       }
     };
 
@@ -53,7 +41,6 @@ function Leaderboard() {
               <p className="season">SEASON 2026</p>
               <h1>IPL LEADERBOARD</h1>
             </div>
-              {/* <img src={logo} alt="Trinity Logo" className="logo" /> */}
 
           </div>
 
@@ -69,7 +56,6 @@ function Leaderboard() {
             const order = ["first", "second", "third"];
 
             return (
-              // <div className={`podium-col ${order[index]}`} key={p.name}>
               <div
                   className={`podium-col ${order[index]} ${
                     index === 0 ? "winner-glow" : ""
@@ -79,7 +65,6 @@ function Leaderboard() {
                 
                 {/* Trophy */}
                 <div className="trophy">
-                  {/* {index === 1 ? "👑" : index === 0 ? "🥈" : "🥉"} */}
                   {index === 0 ? "👑" : index === 1 ? "🥈" : "🥉"}
                 </div>
 
@@ -104,9 +89,7 @@ function Leaderboard() {
             <span className="points">TOTAL POINTS</span>
           </div>
 
-          {/* {players.map((p, index) => ( */}
           {players.slice(0, visibleCount).map((p, index) => (
-            // <div className="row" key={index}>
               <div className="row" key={p.name}>
               <div className="rank">
                 {p.rank < 10 ? `0${p.rank}` : p.rank}
@@ -126,7 +109,6 @@ function Leaderboard() {
             </div>
           ))}
 
-          {/* <button className="load-btn">LOAD MORE PLAYERS</button> */}
           {players.length > 5 && visibleCount < players.length && (
             <button
               className="load-btn"

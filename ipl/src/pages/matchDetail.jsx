@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
+import { apiFetch } from "../api";
 import "./matchDetail.css";
 
 function MatchDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [match, setMatch] = useState(null);
   const [picks, setPicks] = useState([]);
@@ -16,31 +16,18 @@ function MatchDetail() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("URL PARAM ID:", id);
-
         // Fetch match
-        const matchRes = await fetch(`http://localhost:8000/matches/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const matchData = await matchRes.json();
-
-        console.log("MATCH DATA:", matchData);
-        console.log("STATUS RAW:", matchData.status);
-
+        const matchData = await apiFetch(`/matches/${id}`);
         setMatch(matchData);
 
         // Fetch picks
-        const picksRes = await fetch(`http://localhost:8000/matches/${id}/picks`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const picksData = await picksRes.json();
-
-        console.log("PICKS DATA:", picksData);
-
+        const picksData = await apiFetch(`/matches/${id}/picks`);
         setPicks(picksData.picks || []);
         setNoPickUsers(picksData.no_pick_users || []);
       } catch (err) {
-        console.error(err);
+        if (err.message !== "Session expired") {
+          console.error(err);
+        }
       } finally {
         setLoading(false);
       }
@@ -69,10 +56,6 @@ function MatchDetail() {
 
   // ✅ FIX: Normalize status
   const status = match?.status?.toLowerCase().trim();
-
-  console.log("MATCH:", match);
-  console.log("STATUS RAW:", match?.status);
-  console.log("NORMALIZED STATUS:", status);
 
   // ✅ FIX: Allow today, live, completed
   if (!["today", "live", "completed"].includes(status)) {

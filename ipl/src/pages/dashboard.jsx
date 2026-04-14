@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
+import { apiFetch, verifySession } from "../api";
 import "./dashboard.css";
 
 function Dashboard() {
@@ -13,43 +14,37 @@ function Dashboard() {
   const [rank, setRank] = useState("-");
   const [lastSync, setLastSync] = useState(null);
 
-
   const [userPicks, setUserPicks] = useState({});
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
-    fetchDashboard();
-    
+    // Verify session on mount before doing anything
+    verifySession().then((user) => {
+      if (user) fetchDashboard();
+    });
+
     // ✅ AUTO-REFRESH EVERY 30 SECONDS
     const interval = setInterval(fetchDashboard, 30000);
     return () => clearInterval(interval);
   }, []);
 
 
-  const fetchDashboard = () => {
-    fetch("http://localhost:8000/dashboard", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(data => {
-        setPending(data.pending || []);
-        setPast(data.past || []);
-        setPoints(data.points || 0);
-        setCorrect(data.correct || 0);
-        setWrong(data.wrong || 0);
-        setRank(data.rank || "-");
-        setLastSync(data.last_sync);
-      })
-
-      .catch(() => {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("token");
-        window.location.href = "/";
-      });
+  const fetchDashboard = async () => {
+    try {
+      const data = await apiFetch("/dashboard");
+      setPending(data.pending || []);
+      setPast(data.past || []);
+      setPoints(data.points || 0);
+      setCorrect(data.correct || 0);
+      setWrong(data.wrong || 0);
+      setRank(data.rank || "-");
+      setLastSync(data.last_sync);
+    } catch (err) {
+      // apiFetch already handles 401 → redirect
+      // Only log non-auth errors (e.g. network blips)
+      if (err.message !== "Session expired") {
+        console.error("Dashboard fetch error:", err);
+      }
+    }
   };
 
   // ✅ SAFE TIME FORMATTER
@@ -67,28 +62,22 @@ function Dashboard() {
   // ✅ PICK
   const handlePick = async (matchId, team) => {
     try {
-      const res = await fetch("http://localhost:8000/pick", {
+      await apiFetch("/pick", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           match_id: matchId,
           selected_team: team,
         }),
       });
 
-      if (res.ok) {
-        setUserPicks(prev => ({
-          ...prev,
-          [matchId]: team
-        }));
+      setUserPicks(prev => ({
+        ...prev,
+        [matchId]: team
+      }));
 
-        setTimeout(() => {
-          setPending(prev => prev.filter(m => m.id !== matchId));
-        }, 300);
-      }
+      setTimeout(() => {
+        setPending(prev => prev.filter(m => m.id !== matchId));
+      }, 300);
     } catch {
       alert("Error placing pick");
     }
@@ -113,7 +102,6 @@ function Dashboard() {
       ) : (
         <span>TODAY</span>
       )}
-      {/* <span>{match.venue || "STADIUM"}</span> */}
     </div>
 
 
@@ -128,7 +116,6 @@ function Dashboard() {
         <div className="team-logo">
           {match.team1}
         </div>
-        {/* <p>{match.team1}</p> */}
       </div>
 
       <div className="vs">VS</div>
@@ -137,7 +124,6 @@ function Dashboard() {
         <div className="team-logo">
           {match.team2}
         </div>
-        {/* <p>{match.team2}</p> */}
       </div>
     </div>
 

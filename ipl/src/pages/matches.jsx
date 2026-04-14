@@ -2,6 +2,7 @@ import "./matches.css";
 import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../api";
 
 const TEAM_FULL_NAMES = {
   RCB: "Royal Challengers Bangalore",
@@ -19,7 +20,6 @@ const TEAM_FULL_NAMES = {
 function Matches() {
   const [tab, setTab] = useState("today"); // upcoming / today / completed
   const [matches, setMatches] = useState([]);
-  const token = localStorage.getItem("token");
   const [liveMatches, setLiveMatches] = useState([]);
   const [userPicks, setUserPicks] = useState({});
   const navigate = useNavigate();
@@ -27,26 +27,24 @@ function Matches() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
+        const data = await apiFetch(`/matches?status=${tab}`);
         setMatches(data);
       } catch (err) {
-        console.error(err);
-        alert("Error fetching matches");
+        if (err.message !== "Session expired") {
+          console.error(err);
+          alert("Error fetching matches");
+        }
       }
     };
 
     const fetchLiveMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=live`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
+        const data = await apiFetch(`/matches?status=live`);
         setLiveMatches(data);
       } catch (err) {
-        console.error(err);
+        if (err.message !== "Session expired") {
+          console.error(err);
+        }
       }
     };
 
@@ -55,13 +53,11 @@ function Matches() {
   }, [tab]);
 
   const renderMatch = (match) => (
-    // <div className="match-card" key={match.id}>
     <div
       className="match-card"
       key={match.id}
       onClick={() => {
         if (match.status === "live" || match.status === "completed") {
-          // if (match.status === "today" || match.status === "live" || match.status === "completed") {
           navigate(`/matches/${match.id}`);
         }
       }}
@@ -114,24 +110,18 @@ function Matches() {
       <div className="bets">
         {match.status === "today" ? (
           <>
-            {/* <div className="bet" onClick={() => placePick(match.id, match.team1)}> */}
             <div
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team1 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team1)}
             >
-              {/* <p><h2>BET ON {match.team1}</h2></p> */}
               <h4 style={{ color: "white" }}>BET ON {match.team1}</h4>
-              {/* <h2>1.9</h2> */}
             </div>
 
-            {/* <div className="bet" onClick={() => placePick(match.id, match.team2)}> */}
             <div
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team2 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team2)}
             >
-              {/* <p><h2>BET ON {match.team2}</h2></p> */}
               <h4 style={{ color: "white" }}>BET ON {match.team2}</h4>
-              {/* <h2>2.0</h2> */}
             </div>
           </>
         ) : match.status === "completed" ? (
@@ -150,34 +140,23 @@ function Matches() {
   );
 
   const placePick = async (matchId, team) => {
-    const token = localStorage.getItem("token");
-
     try {
-      const res = await fetch("http://localhost:8000/pick", {
+      const data = await apiFetch("/pick", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           match_id: matchId,
           selected_team: team,
         }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setUserPicks(prev => ({
-          ...prev,
-          [matchId]: team
-        }));
-      } else {
-        alert(data.detail);
-      }
+      setUserPicks(prev => ({
+        ...prev,
+        [matchId]: team
+      }));
     } catch (err) {
-      console.error(err);
-      alert("Error placing bet");
+      if (err.message !== "Session expired") {
+        alert(err.data?.detail || "Error placing bet");
+      }
     }
   };
 
@@ -203,7 +182,6 @@ function Matches() {
           <button onClick={() => setTab("completed")} className={tab==="completed" ? "active":""}>COMPLETED</button>
         </div>
 
-        {/* {matches.map(renderMatch)} */}
         {
           (tab === "completed"
             ? [...matches].sort((a, b) => new Date(b.match_time) - new Date(a.match_time))

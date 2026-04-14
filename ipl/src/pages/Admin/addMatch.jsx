@@ -1,6 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { useState } from "react";
+import { apiFetch } from "../../api";
 
 function AddMatch() {
   const [team1, setTeam1] = useState("");
@@ -8,18 +9,12 @@ function AddMatch() {
   const [matchTime, setMatchTime] = useState("");
   const [status, setStatus] = useState("upcoming");
 
-  const token = localStorage.getItem("token");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:8000/admin/add-match", {
+      await apiFetch("/admin/add-match", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           team1,
           team2,
@@ -28,19 +23,15 @@ function AddMatch() {
         }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Match added ✅");
-        setTeam1("");
-        setTeam2("");
-        setMatchTime("");
-      } else {
-        alert(data.detail);
-      }
+      alert("Match added ✅");
+      setTeam1("");
+      setTeam2("");
+      setMatchTime("");
     } catch (err) {
-      console.error(err);
-      alert("Error adding match");
+      if (err.message !== "Session expired") {
+        console.error(err);
+        alert(err.data?.detail || "Error adding match");
+      }
     }
   };
 

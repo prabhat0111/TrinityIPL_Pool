@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
+import { apiFetch } from "../../api";
 
 function EnterResult() {
   const [matches, setMatches] = useState([]);
@@ -8,23 +9,14 @@ function EnterResult() {
   const [result, setResult] = useState("");
 
   const fetchMatches = async () => {
-    const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:8000/matches?status=live", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setMatches(data);
-      } else {
-        alert(data.detail || "Error fetching matches");
-      }
+      const data = await apiFetch("/matches?status=live");
+      setMatches(data);
     } catch (err) {
-      console.error(err);
-      alert("Error fetching matches");
+      if (err.message !== "Session expired") {
+        console.error(err);
+        alert("Error fetching matches");
+      }
     }
   };
 
@@ -39,34 +31,24 @@ function EnterResult() {
       return;
     }
 
-    const token = localStorage.getItem("token");
-
     try {
-      const res = await fetch("http://localhost:8000/admin/enter-result", {
+      await apiFetch("/admin/enter-result", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           match_id: selectedMatch,
           result: result,
         }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Result entered ✅");
-        setSelectedMatch("");
-        setResult("");
-        fetchMatches(); // refresh match list
-      } else {
-        alert(data.detail);
-      }
+      alert("Result entered ✅");
+      setSelectedMatch("");
+      setResult("");
+      fetchMatches(); // refresh match list
     } catch (err) {
-      console.error(err);
-      alert("Error entering result");
+      if (err.message !== "Session expired") {
+        console.error(err);
+        alert(err.data?.detail || "Error entering result");
+      }
     }
   };
 

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./login.css";
 import logo from "../assets/logo.jpg";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -17,10 +19,6 @@ function Login() {
     body.append("password", password);
 
     try {
-      // ✅ FALLBACK FIX (IMPORTANT)
-      const API_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:8000";
-
       const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
@@ -29,7 +27,6 @@ function Login() {
         body: body,
         credentials: "include", // ✅ Allow cookies
       });
-
 
       const data = await res.json();
 

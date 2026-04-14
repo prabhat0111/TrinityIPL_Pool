@@ -1,6 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import React, { useEffect, useState } from "react";
+import { apiFetch } from "../../api";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -9,15 +10,16 @@ function AdminUsers() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
 
-  const token = localStorage.getItem("token");
-
   // Fetch users
   const fetchUsers = async () => {
-    const res = await fetch("http://localhost:8000/admin/get-users", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setUsers(data);
+    try {
+      const data = await apiFetch("/admin/get-users");
+      setUsers(data);
+    } catch (err) {
+      if (err.message !== "Session expired") {
+        console.error(err);
+      }
+    }
   };
 
   useEffect(() => {
@@ -27,35 +29,35 @@ function AdminUsers() {
   // Add user
   const handleAddUser = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:8000/admin/add-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ name, email, password, role }),
-    });
-    const data = await res.json();
-    if (res.ok) {
+    try {
+      await apiFetch("/admin/add-user", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password, role }),
+      });
       alert("User added ✅");
       setName(""); setEmail(""); setPassword(""); setRole("user");
       fetchUsers();
-    } else {
-      alert(data.detail);
+    } catch (err) {
+      if (err.message !== "Session expired") {
+        alert(err.data?.detail || "Error adding user");
+      }
     }
   };
 
   // Remove user
   const handleRemoveUser = async (userId) => {
     if (!window.confirm("Are you sure?")) return;
-    const res = await fetch("http://localhost:8000/admin/remove-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ user_id: userId }),
-    });
-    const data = await res.json();
-    if (res.ok) {
+    try {
+      await apiFetch("/admin/remove-user", {
+        method: "POST",
+        body: JSON.stringify({ user_id: userId }),
+      });
       alert("User removed ✅");
       fetchUsers();
-    } else {
-      alert(data.detail);
+    } catch (err) {
+      if (err.message !== "Session expired") {
+        alert(err.data?.detail || "Error removing user");
+      }
     }
   };
 

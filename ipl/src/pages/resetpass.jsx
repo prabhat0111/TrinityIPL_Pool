@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./resetpass.css";
 import Sidebar from "../components/sidebar";
+import { apiFetch } from "../api";
 
 function ResetPass() {
   const [showOld, setShowOld] = useState(false);
@@ -11,19 +12,14 @@ function ResetPass() {
   // FETCH PROFILE TO AUTO-FILL EMAIL
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-
       try {
-        const res = await fetch("http://localhost:8000/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await res.json();
-        if (res.ok) setUser(data);
-        else alert("Failed to load profile");
+        const data = await apiFetch("/profile");
+        setUser(data);
       } catch (err) {
-        console.error(err);
-        alert("Failed to fetch profile");
+        if (err.message !== "Session expired") {
+          console.error(err);
+          alert("Failed to fetch profile");
+        }
       }
     };
     fetchProfile();
@@ -50,15 +46,9 @@ function ResetPass() {
       return;
     }
 
-    const token = localStorage.getItem("token");
-
     try {
-      const res = await fetch("http://localhost:8000/reset-password", {
+      await apiFetch("/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           email: user.email, // auto-filled
           oldPassword,
@@ -66,17 +56,12 @@ function ResetPass() {
         }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Password updated successfully ✅");
-        e.target.reset();
-      } else {
-        alert(data.detail);
-      }
+      alert("Password updated successfully ✅");
+      e.target.reset();
     } catch (err) {
-      console.error(err);
-      alert("Server error");
+      if (err.message !== "Session expired") {
+        alert(err.data?.detail || "Server error");
+      }
     }
   };
 
