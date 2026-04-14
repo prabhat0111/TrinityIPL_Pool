@@ -19,7 +19,7 @@ function Login() {
     try {
       // ✅ FALLBACK FIX (IMPORTANT)
       const API_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:8000";
+        import.meta.env.VITE_API_URL || "https://ipl.energeticitsolutions.com/";
 
       const res = await fetch(`${API_URL}/login`, {
         method: "POST",

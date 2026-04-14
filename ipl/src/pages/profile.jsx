@@ -7,7 +7,7 @@ function Profile() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch("http://localhost:8000/profile", {
+    fetch("https://ipl.energeticitsolutions.com/profile", {
       headers: {
         Authorization: `Bearer ${token}`
       }

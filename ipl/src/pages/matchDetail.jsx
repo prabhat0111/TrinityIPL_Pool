@@ -19,7 +19,7 @@ function MatchDetail() {
         console.log("URL PARAM ID:", id);
 
         // Fetch match
-        const matchRes = await fetch(`http://localhost:8000/matches/${id}`, {
+        const matchRes = await fetch(`https://ipl.energeticitsolutions.com/matches/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const matchData = await matchRes.json();

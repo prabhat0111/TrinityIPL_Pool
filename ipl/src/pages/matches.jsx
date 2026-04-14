@@ -27,7 +27,7 @@ function Matches() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/matches?status=${tab}`, {
+        const res = await fetch(`https://ipl.energeticitsolutions.com/matches?status=${tab}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();

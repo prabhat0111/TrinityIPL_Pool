@@ -67,7 +67,7 @@ function Dashboard() {
   // ✅ PICK
   const handlePick = async (matchId, team) => {
     try {
-      const res = await fetch("http://localhost:8000/pick", {
+      const res = await fetch("https://ipl.energeticitsolutions.com/pick", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

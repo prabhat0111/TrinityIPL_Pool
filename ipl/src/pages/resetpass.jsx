@@ -14,7 +14,7 @@ function ResetPass() {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await fetch("http://localhost:8000/profile", {
+        const res = await fetch("https://ipl.energeticitsolutions.com/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

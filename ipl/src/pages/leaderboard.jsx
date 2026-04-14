@@ -13,7 +13,7 @@ function Leaderboard() {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await fetch("http://localhost:8000/leaderboard", {
+        const res = await fetch("https://ipl.energeticitsolutions.com/leaderboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
