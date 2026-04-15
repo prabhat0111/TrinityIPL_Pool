@@ -53,12 +53,23 @@ function Dashboard() {
     const d = new Date(time);
     if (isNaN(d)) return "TBA";
 
-    return d.toLocaleTimeString("en-CA", {
-      timeZone: "America/Toronto",
+    // return d.toLocaleTimeString("en-CA", {
+    //   timeZone: "America/Toronto",
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
+
+
+
+    // local timezone 
+    return d.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
+
+
+
 
   // ✅ PICK
   const handlePick = async (matchId, team) => {
@@ -165,7 +176,20 @@ function Dashboard() {
           {lastSync && (
             <div className="sync-status">
               <div className="sync-dot"></div>
-              SYSTEM UPDATED: {new Date(lastSync).toLocaleTimeString("en-CA", {timeZone:'America/Toronto', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              SYSTEM UPDATED: {
+              // new Date(lastSync).toLocaleTimeString("en-CA", {timeZone:'America/Toronto', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+              
+              
+              // local timezone 
+              new Date(lastSync).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+              })
+
+
+
+              }
             </div>
           )}
         </div>

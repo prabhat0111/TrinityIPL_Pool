@@ -74,11 +74,16 @@ function Matches() {
 
       <div className="time">
         <p>
-          {new Date(match.match_time).toLocaleTimeString("en-CA", {
-            timeZone:"America/Toronto",
+
+
+          {/* local timezone  */}
+          {new Date(match.match_time).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
+
+
+          
         </p>
 
         {(match.status === "upcoming" || match.status === "completed") && (
