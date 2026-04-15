@@ -74,7 +74,8 @@ function Matches() {
 
       <div className="time">
         <p>
-          {new Date(match.match_time).toLocaleTimeString([], {
+          {new Date(match.match_time).toLocaleTimeString("en-CA", {
+            timeZone:"America/Toronto",
             hour: "2-digit",
             minute: "2-digit",
           })}

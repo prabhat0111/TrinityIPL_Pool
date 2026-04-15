@@ -53,7 +53,8 @@ function Dashboard() {
     const d = new Date(time);
     if (isNaN(d)) return "TBA";
 
-    return d.toLocaleTimeString([], {
+    return d.toLocaleTimeString("en-CA", {
+      timeZone: "America/Toronto",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -164,7 +165,7 @@ function Dashboard() {
           {lastSync && (
             <div className="sync-status">
               <div className="sync-dot"></div>
-              SYSTEM UPDATED: {new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              SYSTEM UPDATED: {new Date(lastSync).toLocaleTimeString("en-CA", {timeZone:'America/Toronto', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
           )}
         </div>

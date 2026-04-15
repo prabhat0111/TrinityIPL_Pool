@@ -23,8 +23,9 @@ from session import (
 )
 
 app = FastAPI()
-LAST_SYNC_TIME = datetime.utcnow()  # Global to track background task
 CANADA_TZ = pytz.timezone("America/Toronto")
+LAST_SYNC_TIME = datetime.now(CANADA_TZ)  # Global to track background task
+
 
 ORIGINS = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
 app.add_middleware(
@@ -257,7 +258,7 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
                 "id": m[0],
                 "team1": m[1],
                 "team2": m[2],
-                "match_time": m[3].isoformat(),
+                "match_time": CANADA_TZ.localize(m[3]).isoformat(),
                 "result": m[4],
                 "status": m[5],
                 "user_pick": m[6]  # 🔥 THIS FIXES EVERYTHING
@@ -295,20 +296,20 @@ def update_match_status():
     cur = conn.cursor()
 
     try:
-        LAST_SYNC_TIME = datetime.utcnow()
+        LAST_SYNC_TIME = datetime.now(CANADA_TZ)
 
         # upcoming -> today
         cur.execute("""
             UPDATE matches 
             SET status='today' 
-            WHERE status='upcoming' AND match_time::date = CURRENT_DATE
+            WHERE status='upcoming' AND match_time::date = (NOW() AT TIME ZONE 'America/Toronto')::date
         """)
 
         # today -> live
         cur.execute("""
             UPDATE matches 
             SET status='live' 
-            WHERE status='today' AND match_time <= NOW()
+            WHERE status='today' AND match_time <= (NOW() AT TIME ZONE 'America/Toronto')
         """)
 
         # live -> completed (ONLY if result is set)
@@ -415,7 +416,7 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
         cur.execute("""
             INSERT INTO matches (team1, team2, match_time, status)
             VALUES (%s, %s, %s, %s)
-        """, (team1, team2, match_time, status))
+        """, (team1, team2, canada_time, status))
 
         db.commit()
 
@@ -693,7 +694,7 @@ def get_match_by_id(match_id: int, user=Depends(get_current_user), db=Depends(ge
             "id": match[0],
             "team1": match[1],
             "team2": match[2],
-            "match_time": match[3].isoformat(),
+            "match_time": CANADA_TZ.localize(match[3]).isoformat(),
             "result": match[4],
             "status": match[5]
         }
@@ -721,7 +722,7 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
                 "id": r[0],
                 "team1": r[1],
                 "team2": r[2],
-                "match_time": r[3].isoformat() if r[3] else None
+                "match_time": CANADA_TZ.localize(r[3]).isoformat() if r[3] else None
             }
             for r in cur.fetchall()
         ]
