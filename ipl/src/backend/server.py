@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from config import settings
 import os
 import uvicorn
+import pytz
 from fastapi_utils.tasks import repeat_every
 
 # ── Session management (JWT, cookies, refresh) ──
@@ -23,7 +24,7 @@ from session import (
 
 app = FastAPI()
 LAST_SYNC_TIME = datetime.utcnow()  # Global to track background task
-
+CANADA_TZ = pytz.timezone("America/Toronto")
 
 ORIGINS = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
 app.add_middleware(
@@ -400,8 +401,8 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
             raise HTTPException(status_code=400, detail="Missing fields")
 
         # Convert string to datetime
-        match_time = datetime.fromisoformat(match_time)
-
+        nat_time = datetime.fromisoformat(match_time)
+        canada_time = CANADA_TZ.localize(nat_time)
         # Get status from frontend (default = upcoming)
         status = data.get("status", "upcoming")
 
