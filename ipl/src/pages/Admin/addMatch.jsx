@@ -1,7 +1,7 @@
 import "../matches.css";
 import Admin_Sidebar from "../../components/admin_sidebar";
 import { useState } from "react";
-import { apiFetch } from "../../api";
+import { toUTCISO } from "../../utils/dateUtils";
 
 function AddMatch() {
   const [team1, setTeam1] = useState("");
@@ -18,7 +18,7 @@ function AddMatch() {
         body: JSON.stringify({
           team1,
           team2,
-          match_time: matchTime,
+          match_time: toUTCISO(matchTime),
           status,
         }),
       });

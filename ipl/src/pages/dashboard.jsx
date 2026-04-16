@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import { apiFetch, verifySession } from "../api";
+import { formatToLocalTime } from "../utils/dateUtils";
 import "./dashboard.css";
 
 function Dashboard() {
@@ -48,16 +49,7 @@ function Dashboard() {
   };
 
   // ✅ SAFE TIME FORMATTER
-  const formatTime = (time) => {
-    if (!time) return "TBA";
-    const d = new Date(time);
-    if (isNaN(d)) return "TBA";
-
-    return d.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatTime = (time) => formatToLocalTime(time);
 
   // ✅ PICK
   const handlePick = async (matchId, team) => {
@@ -164,7 +156,7 @@ function Dashboard() {
           {lastSync && (
             <div className="sync-status">
               <div className="sync-dot"></div>
-              SYSTEM UPDATED: {new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              SYSTEM UPDATED: {formatToLocalTime(lastSync)}
             </div>
           )}
         </div>

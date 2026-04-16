@@ -3,6 +3,7 @@ import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../api";
+import { formatToLocalTime, formatToLocalDate } from "../utils/dateUtils";
 
 const TEAM_FULL_NAMES = {
   RCB: "Royal Challengers Bangalore",
@@ -74,15 +75,12 @@ function Matches() {
 
       <div className="time">
         <p>
-          {new Date(match.match_time).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatToLocalTime(match.match_time)}
         </p>
 
         {(match.status === "upcoming" || match.status === "completed") && (
           <p>
-            {new Date(match.match_time).toLocaleDateString()}
+            {formatToLocalDate(match.match_time)}
           </p>
         )}
       </div>

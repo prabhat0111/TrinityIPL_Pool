@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import { apiFetch } from "../api";
+import { formatToLongDateTime } from "../utils/dateUtils";
 import "./matchDetail.css";
 
 function MatchDetail() {
@@ -86,7 +87,7 @@ function MatchDetail() {
         <div className="header-card">
           <p className="tag">{status.toUpperCase()}</p>
           <h1>{match.team1} vs {match.team2}</h1>
-          <p>{new Date(match.match_time).toLocaleString()}</p>
+          <p>{formatToLongDateTime(match.match_time)}</p>
         </div>
 
         {/* Picks Summary */}
