@@ -86,7 +86,17 @@ function MatchDetail() {
         <div className="header-card">
           <p className="tag">{status.toUpperCase()}</p>
           <h1>{match.team1} vs {match.team2}</h1>
-          <p>{new Date(match.match_time).toLocaleString()}</p>
+          {/* <p>{new Date(match.match_time).toLocaleString()}</p> */}
+          <p>
+            {new Date(match.match_time).toLocaleString("en-CA", {
+              timeZone: "America/Toronto",
+              hour: "2-digit",
+              minute: "2-digit",
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+            })}
+          </p>
         </div>
 
         {/* Picks Summary */}

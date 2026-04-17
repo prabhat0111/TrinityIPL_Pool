@@ -73,7 +73,18 @@ function EnterResult() {
               <option value="">Select Live Match</option>
               {matches.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.team1} vs {m.team2} ({new Date(m.match_time).toLocaleString()})
+                  {m.team1} vs {m.team2} 
+                  {/* ({new Date(m.match_time).toLocaleString()}) */}
+
+                  ({new Date(m.match_time).toLocaleString("en-CA", {
+                    timeZone: "America/Toronto",
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })})
+
                 </option>
               ))}
             </select>

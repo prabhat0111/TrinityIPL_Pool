@@ -7,8 +7,10 @@ from passlib.context import CryptContext
 from config import settings
 import os
 import uvicorn
-# import pytz
+import pytz
 from fastapi_utils.tasks import repeat_every
+from datetime import timezone
+
 
 # ── Session management (JWT, cookies, refresh) ──
 from session import (
@@ -26,8 +28,8 @@ app = FastAPI()
 
 
 
-# local timezone 
-LAST_SYNC_TIME = datetime.now()
+# uct timezone 
+LAST_SYNC_TIME = datetime.now(timezone.utc)
 
 
 ORIGINS = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
@@ -263,6 +265,7 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
                 "team2": m[2],
                 # local timezone
                 "match_time": m[3].isoformat(),
+                # "match_time": m[3].astimezone(timezone.utc).isoformat(),
                 "result": m[4],
                 "status": m[5],
                 "user_pick": m[6]  # 🔥 THIS FIXES EVERYTHING
@@ -300,7 +303,7 @@ def update_match_status():
     cur = conn.cursor()
 
     try:
-        LAST_SYNC_TIME = datetime.now()
+        LAST_SYNC_TIME = datetime.now(timezone.utc)
 
         # upcoming -> today
         cur.execute("""
@@ -406,7 +409,16 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
             raise HTTPException(status_code=400, detail="Missing fields")
 
         # Convert string to datetime
-        match_time_obj = datetime.fromisoformat(match_time)
+        # match_time_obj = datetime.fromisoformat(match_time)
+
+
+        toronto_tz = pytz.timezone("America/Toronto")
+
+        naive_dt = datetime.fromisoformat(match_time)
+        toronto_dt = toronto_tz.localize(naive_dt)
+        utc_dt = toronto_dt.astimezone(pytz.utc)
+
+
         # Get status from frontend (default = upcoming)
         status = data.get("status", "upcoming")
 
@@ -419,7 +431,7 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
         cur.execute("""
             INSERT INTO matches (team1, team2, match_time, status)
             VALUES (%s, %s, %s, %s)
-        """, (team1, team2, match_time_obj, status))
+        """, (team1, team2, utc_dt, status))
 
         db.commit()
 
@@ -699,6 +711,7 @@ def get_match_by_id(match_id: int, user=Depends(get_current_user), db=Depends(ge
             "team2": match[2],
             # local timezone
             "match_time": match[3].isoformat(),
+            # "match_time": match[3].astimezone(timezone.utc).isoformat(),
             "result": match[4],
             "status": match[5]
         }
@@ -729,6 +742,7 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
 
                 # local timezone 
                 "match_time": r[3].isoformat() if r[3] else None
+                # "match_time": r[3].astimezone(timezone.utc).isoformat() if r[3] else None
             }
             for r in cur.fetchall()
         ]
@@ -801,7 +815,7 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
             "correct": correct,
             "wrong": wrong,
             "rank": user_rank,
-            "last_sync": LAST_SYNC_TIME.isoformat()
+            "last_sync": LAST_SYNC_TIME.astimezone(timezone.utc).isoformat()
         }
 
 
