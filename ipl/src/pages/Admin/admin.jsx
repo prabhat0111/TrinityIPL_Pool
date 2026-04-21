@@ -127,7 +127,7 @@ function Admin() {
         ) : match.status === "live" ? (
           <p>Match is live</p>
         ) : match.status === "today" ? (
-          <p>Betting open (User side)</p>
+          <p>Picks are open (User side)</p>
         ) : (
           <p>Upcoming match</p>
         )}

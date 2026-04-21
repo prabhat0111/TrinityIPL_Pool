@@ -46,7 +46,7 @@ function Leaderboard() {
 
           <p className="subtitle">
             Track the elite performers of the Digital Arena. Every wicket, every
-            boundary, and every tactical bet counts toward the ultimate crown.
+            boundary, and every tactical pick counts toward the ultimate crown.
           </p>
         </div>
 

@@ -167,7 +167,7 @@ function MatchDetail() {
         <div className="no-picks-section">
             <h3>Users Who Haven't Picked</h3>
             {noPickUsers.length === 0 ? (
-                <p>None ✅ - Everyone has placed a bet!</p>
+                <p>None ✅ - Everyone had made their picks!</p>
             ) : (
                 noPickUsers.map((user, i) => (
                 <div className="pick-row1" key={i}>

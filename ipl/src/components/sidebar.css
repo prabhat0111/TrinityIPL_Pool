@@ -107,6 +107,8 @@
   width: 110px;
   display: block;
   margin: 20px auto 0;
+  border-radius: 6px; /* 👈 curves the edges */
+
 
   filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.3)); /* 🔥 glow */
   opacity: 0.9;

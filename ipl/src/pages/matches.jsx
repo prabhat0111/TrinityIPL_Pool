@@ -136,14 +136,14 @@ function Matches() {
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team1 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team1)}
             >
-              <h4 style={{ color: "white" }}>BET ON {match.team1}</h4>
+              <h4 style={{ color: "white" }}>PICK {match.team1}</h4>
             </div>
 
             <div
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team2 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team2)}
             >
-              <h4 style={{ color: "white" }}>BET ON {match.team2}</h4>
+              <h4 style={{ color: "white" }}>PICK {match.team2}</h4>
             </div>
           </>
         ) : match.status === "completed" ? (
@@ -153,9 +153,9 @@ function Matches() {
               : `${match.result} won the match`}
           </div>
         ) : match.status === "live" ? (
-          <p>Match is live — betting closed</p>
+          <p>Match is live — picks locked</p>
         ) : (
-          <p>Match not open for betting</p>
+          <p>Match not open for picks</p>
         )}
       </div>
     </div>
@@ -187,7 +187,7 @@ function Matches() {
       <Sidebar />
       <div className="main-content">
         <div className="header-card">
-          <p className="tag">REAL-TIME BETTING</p>
+          <p className="tag">REAL-TIME PICKS</p>
           <h1>MATCHES</h1>
         </div>
 

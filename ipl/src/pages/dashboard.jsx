@@ -154,7 +154,7 @@ function Dashboard() {
         }`}
         onClick={() => handlePick(match.id, match.team1)}
       >
-        BET ON {match.team1}
+        PICK {match.team1}
       </button>
 
       <button
@@ -163,7 +163,7 @@ function Dashboard() {
         }`}
         onClick={() => handlePick(match.id, match.team2)}
       >
-        BET ON {match.team2}
+        PICK {match.team2}
       </button>
     </div>
 
