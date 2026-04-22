@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./login.css";
 import logo from "../assets/logo.jpg";
-
+import { GoogleLogin } from "@react-oauth/google";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 function Login() {
@@ -33,6 +33,11 @@ function Login() {
       if (res.ok) {
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("role", data.user.role);
+
+        if (!data.user.password_reset) {
+            window.location.href = "/resetpass";
+            return;
+        }
 
         if (data.user.role === "admin") {
           window.location.href = "/admin";

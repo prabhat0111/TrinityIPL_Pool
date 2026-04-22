@@ -10,7 +10,8 @@ import uvicorn
 import pytz
 from fastapi_utils.tasks import repeat_every
 from datetime import timezone
-
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 # ── Session management (JWT, cookies, refresh) ──
 from session import (
@@ -51,8 +52,6 @@ pool = SimpleConnectionPool(
     port=settings.DATABASE_PORT
 )
 
-
-
 def get_db():
     conn = pool.getconn()
     try:
@@ -73,41 +72,36 @@ def get_current_user(
     token: str | None = Depends(oauth2_scheme),
     db=Depends(get_db),
 ):
-    """
-    Extract and validate the JWT, look up the user in the DB,
-    and auto-refresh the token/cookie if it's nearing expiry.
-    """
-    # 1. Extract token (header → cookie fallback)
     raw_token = token or request.cookies.get("access_token")
     if raw_token is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    # 2. Decode & validate
     payload = decode_token(raw_token)
     user_id = payload.get("user_id")
 
-    # 3. DB lookup
     cur = db.cursor()
-    cur.execute("SELECT id, name, email, role FROM users WHERE id=%s", (user_id,))
+    cur.execute("SELECT id, name, email, role, password_reset FROM users WHERE id=%s", (user_id,))
     user = cur.fetchone()
     cur.close()
 
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
-    # 4. Auto-refresh token if within refresh window
+    # 🔒 Block access if password has not been reset yet
+    # Allow /reset-password itself to pass through
+    RESET_EXEMPT_PATHS = {"/reset-password", "/profile"}
+    if not user[4] and request.url.path not in RESET_EXEMPT_PATHS:
+        raise HTTPException(status_code=403, detail="Password reset required")
+
     new_token = attach_refreshed_token(response, payload)
-    if new_token:
-        # Store in request state so endpoints can return it in body if desired
-        request.state.refreshed_token = new_token
-    else:
-        request.state.refreshed_token = None
+    request.state.refreshed_token = new_token if new_token else None
 
     return {
         "id": user[0],
         "name": user[1],
         "email": user[2],
         "role": user[3],
+        "password_reset": user[4],
     }
 
 
@@ -138,7 +132,7 @@ def login(
     cur = db.cursor()
     try:
         cur.execute(
-            "SELECT id, name, email, password_hash, role FROM users WHERE email=%s",
+            "SELECT id, name, email, password_hash, role, password_reset FROM users WHERE email=%s",
             (form_data.username,)
         )
         user = cur.fetchone()
@@ -146,7 +140,7 @@ def login(
         if not user:
             raise HTTPException(status_code=400, detail="User not found")
 
-        user_id, name, email, password_hash, role = user
+        user_id, name, email, password_hash, role, password_reset = user
 
         if not verify_password(form_data.password, password_hash):
             raise HTTPException(status_code=400, detail="Invalid password")
@@ -168,6 +162,7 @@ def login(
                 "name": name,
                 "email": email,
                 "role": role,
+                "password_reset": password_reset,
             },
         }
 
@@ -599,7 +594,8 @@ def get_profile(user=Depends(get_current_user)):
     return {
         "name": user["name"],
         "email": user["email"],
-        "role": user["role"]
+        "role": user["role"],
+        "password_reset": user["password_reset"],
     }
 
 @app.post("/reset-password")
@@ -635,7 +631,7 @@ def reset_password(data: dict, user=Depends(get_current_user), db=Depends(get_db
 
         # Update password
         cur.execute(
-            "UPDATE users SET password_hash=%s WHERE id=%s",
+            "UPDATE users SET password_hash=%s, password_reset=TRUE WHERE id=%s",
             (new_hash, user_id)
         )
 

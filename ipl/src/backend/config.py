@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "supersecretkey123"
     ALGORITHM: str = "HS256"
     CORS_ORIGINS: str = "http://localhost:5173"
-
     class Config:
         env_file = ".env"
         case_sensitive = True
