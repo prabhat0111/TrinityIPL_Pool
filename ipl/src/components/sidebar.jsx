@@ -36,6 +36,12 @@ function Sidebar() {
             )}
           </NavLink>
 
+          <NavLink to="/matrixb" onClick={() => setOpen(false)}>
+            {({ isActive }) => (
+              <li className={isActive ? "active" : ""}>📋 Picks Overview</li>
+            )}
+          </NavLink>
+
           <NavLink to="/profile" onClick={() => setOpen(false)}>
             {({ isActive }) => (
               <li className={isActive ? "active" : ""}>👤 My Profile</li>

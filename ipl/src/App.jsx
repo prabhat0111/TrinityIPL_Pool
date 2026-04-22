@@ -11,6 +11,8 @@ import EnterResult from "./pages/Admin/enterResults";
 import Profile from "./pages/profile";
 import MatchDetail from "./pages/matchDetail";
 import Dashboard from "./pages/dashboard";
+import Matrix from "./pages/matrix";
+import MatrixB from "./pages/matrixb";
 
 function App() {
   return (
@@ -27,6 +29,9 @@ function App() {
         <Route path="/profile" element={<Profile/>} />
         <Route path="/matches/:id" element={<MatchDetail />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/matrix" element={<Matrix />} />
+        <Route path="/matrixb" element={<MatrixB />} />
+
 
 
 

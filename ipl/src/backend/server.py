@@ -818,6 +818,75 @@ def get_dashboard(user=Depends(get_current_user), db=Depends(get_db)):
     finally:
         cur.close()
 
+
+@app.get("/matrix")
+def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        # Get all matches
+        cur.execute("""
+            SELECT id, team1, team2, match_time, result
+            FROM matches
+            ORDER BY match_time
+        """)
+        matches = cur.fetchall()
+
+        # Get all users (only users, not admin)
+        cur.execute("""
+            SELECT id, name FROM users WHERE role='user'
+        """)
+        users = cur.fetchall()
+
+        # Get all picks
+        cur.execute("""
+            SELECT user_id, match_id, selected_team, points
+            FROM picks
+        """)
+        picks = cur.fetchall()
+
+        # Build map: match_id -> user -> pick
+        pick_map = {}
+        for p in picks:
+            user_id, match_id, team, points = p
+
+            if match_id not in pick_map:
+                pick_map[match_id] = {}
+
+            pick_map[match_id][user_id] = {
+                "pick": team,
+                "points": points
+            }
+
+        result = []
+
+        for m in matches:
+            match_id, team1, team2, match_time, winner = m
+
+            row = {
+                "match_id": match_id,
+                "team1": team1,
+                "team2": team2,
+                "match_time": match_time.isoformat(),
+                "winner": winner,
+                "predictions": {}
+            }
+
+            for u in users:
+                uid, uname = u
+
+                row["predictions"][uname] = pick_map.get(match_id, {}).get(uid, {
+                    "pick": None,
+                    "points": 0
+                })
+
+            result.append(row)
+
+        return result
+
+    finally:
+        cur.close()
+
 if __name__ == "__main__":
     uvicorn.run(
         "server:app",
