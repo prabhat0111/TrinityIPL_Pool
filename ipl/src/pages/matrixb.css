@@ -1,0 +1,73 @@
+/* CONTAINER */
+.table-container {
+  overflow-x: auto;
+  background: linear-gradient(180deg, #0F172A, #020617);
+  border-radius: 14px;
+  padding: 15px;
+  border: 1px solid rgba(79, 195, 247, 0.1);
+  box-shadow: 0 0 20px rgba(79, 195, 247, 0.08);
+}
+
+/* TABLE */
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+  color: #E5E7EB;
+  font-size: 13px;
+}
+
+/* HEADER */
+.matrix-table th {
+  text-align: left;
+  padding: 12px;
+  color: #4FC3F7;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ROWS */
+.matrix-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* HOVER */
+.matrix-table tbody tr:hover {
+  background: rgba(79, 195, 247, 0.05);
+}
+
+/* MATCH CELL */
+.match-cell .short {
+  font-weight: bold;
+}
+
+.match-cell .full {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 3px;
+}
+
+/* STATES */
+.correct {
+  color: #4ADE80;
+  font-weight: bold;
+}
+
+.wrong {
+  color: #F87171;
+}
+
+.no-pick {
+  color: #9CA3AF;
+}
+
+.no-result {
+  color: #FACC15;
+}
+
+/* WINNER */
+.winner {
+  color: #4FC3F7;
+  font-weight: bold;
+}
