@@ -9,6 +9,7 @@ import os
 import uvicorn
 import pytz
 from fastapi_utils.tasks import repeat_every
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import timezone
 
 
@@ -249,7 +250,7 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
     try:
         cur.execute("""
             SELECT 
-                m.id, m.team1, m.team2, m.match_time, m.result, m.status,
+                m.id, m.team1, m.team2, m.match_time, m.end_time, m.result, m.status,
                 p.selected_team
             FROM matches m
             LEFT JOIN picks p 
@@ -265,10 +266,11 @@ def get_matches(status: str = "today", user=Depends(get_current_user), db=Depend
                 "team2": m[2],
                 # local timezone
                 "match_time": m[3].isoformat(),
+                "end_time": m[4].isoformat(),
                 # "match_time": m[3].astimezone(timezone.utc).isoformat(),
-                "result": m[4],
-                "status": m[5],
-                "user_pick": m[6]  # 🔥 THIS FIXES EVERYTHING
+                "result": m[5],
+                "status": m[6],
+                "user_pick": m[7]  
             } for m in matches
         ]
     finally:
@@ -304,7 +306,7 @@ def update_match_status():
 
     try:
         LAST_SYNC_TIME = datetime.now(timezone.utc)
-
+        
         # upcoming -> today
         cur.execute("""
             UPDATE matches 
@@ -316,17 +318,26 @@ def update_match_status():
         cur.execute("""
             UPDATE matches 
             SET status='live' 
-            WHERE status='today' AND match_time <= (NOW())
+            WHERE status='today' AND match_time <= NOW()
         """)
 
-        # live -> completed (ONLY if result is set)
+        # ✅ NEW: end_time based completion
+        cur.execute("""
+            UPDATE matches 
+            SET status='completed' 
+            WHERE status IN ('today', 'live')
+            AND end_time IS NOT NULL
+            AND end_time <= NOW()
+        """)
+
+        # existing: result-based completion (keep this)
         cur.execute("""
             UPDATE matches 
             SET status='completed' 
             WHERE status='live' AND result IS NOT NULL
         """)
 
-        # ✅ ASSIGN POINTS for matches with a winner only
+        # assign points
         cur.execute("""
             UPDATE picks p
             SET points = 1
@@ -417,7 +428,7 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
         naive_dt = datetime.fromisoformat(match_time)
         toronto_dt = toronto_tz.localize(naive_dt)
         utc_dt = toronto_dt.astimezone(pytz.utc)
-
+        utc_dt2 = toronto_dt.astimezone(pytz.utc) + timedelta(hours=4)
 
         # Get status from frontend (default = upcoming)
         status = data.get("status", "upcoming")
@@ -429,9 +440,9 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
             raise HTTPException(status_code=400, detail="Invalid status")
 
         cur.execute("""
-            INSERT INTO matches (team1, team2, match_time, status)
-            VALUES (%s, %s, %s, %s)
-        """, (team1, team2, utc_dt, status))
+            INSERT INTO matches (team1, team2, match_time, end_time, status)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (team1, team2, utc_dt, utc_dt2, status))
 
         db.commit()
 
