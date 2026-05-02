@@ -12,7 +12,7 @@ from fastapi_utils.tasks import repeat_every
 from datetime import timezone
 
 
-# ── Session management (JWT, cookies, refresh) ──
+# ── Session management (JWT, cookies, refresh) ──--
 from session import (
     create_access_token,
     decode_token,
