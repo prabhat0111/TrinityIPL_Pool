@@ -830,7 +830,7 @@ def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
     try:
         # Get all matches
         cur.execute("""
-            SELECT id, team1, team2, match_time, result
+            SELECT id, team1, team2, match_time, result, status
             FROM matches
             ORDER BY match_time
         """)
@@ -865,7 +865,7 @@ def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
         result = []
 
         for m in matches:
-            match_id, team1, team2, match_time, winner = m
+            match_id, team1, team2, match_time, winner, status = m
 
             row = {
                 "match_id": match_id,
@@ -873,6 +873,7 @@ def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
                 "team2": team2,
                 "match_time": match_time.isoformat(),
                 "winner": winner,
+                "status": status,   # ✅ ADD THIS LINE
                 "predictions": {}
             }
 

@@ -71,3 +71,14 @@
   color: #4FC3F7;
   font-weight: bold;
 }
+
+.hidden-pick {
+  color: #6B7280;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.own-pick {
+  color: #4FC3F7;
+  font-weight: bold;
+}
