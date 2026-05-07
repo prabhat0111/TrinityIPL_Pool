@@ -68,8 +68,13 @@ function Dashboard() {
     // });
 
 
-    return new Date(time).toLocaleTimeString("en-CA", {
-      timeZone: "America/Toronto",
+    // return new Date(time).toLocaleTimeString("en-CA", {
+    //   timeZone: "America/Toronto",
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
+
+    return new Date(time).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -194,8 +199,14 @@ function Dashboard() {
               //   second: '2-digit'
               // })
 
-              new Date(lastSync).toLocaleTimeString("en-CA", {
-                timeZone: "America/Toronto",
+              // new Date(lastSync).toLocaleTimeString("en-CA", {
+              //   timeZone: "America/Toronto",
+              //   hour: '2-digit',
+              //   minute: '2-digit',
+              //   second: '2-digit'
+              // })
+
+              new Date(lastSync).toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit'

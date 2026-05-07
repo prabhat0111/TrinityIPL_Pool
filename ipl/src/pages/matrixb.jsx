@@ -100,7 +100,10 @@ function MatrixB() {
                   <td>{index + 1}</td>
 
                   <td>
-                    {new Date(match.match_time).toLocaleDateString("en-IN")}
+                    {
+                    // new Date(match.match_time).toLocaleDateString("en-IN")
+                    new Date(match.match_time).toLocaleDateString()
+                    }
                   </td>
 
                   <td>
