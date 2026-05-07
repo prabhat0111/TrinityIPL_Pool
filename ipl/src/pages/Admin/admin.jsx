@@ -90,7 +90,12 @@ function Admin() {
             //   month: "short",
             //   day: "2-digit",
             // })
-            new Date(match.match_time).toLocaleDateString()
+            // new Date(match.match_time).toLocaleDateString()
+            new Date(match.match_time).toLocaleDateString([], {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
             }
           </p>
         )}

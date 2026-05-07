@@ -362,7 +362,8 @@ def place_pick(data: dict, user=Depends(get_current_user), db=Depends(get_db)):
             raise HTTPException(status_code=404, detail="Match not found")
 
         # ❌ No betting after match starts
-        if match[0] != "today":
+        # if match[0] != "today":
+        if match[0] in ["live", "completed"]:
             raise HTTPException(status_code=400, detail="Betting closed")
 
         # ✅ Check if user already picked

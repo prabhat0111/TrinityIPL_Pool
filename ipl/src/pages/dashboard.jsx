@@ -247,7 +247,7 @@ function Dashboard() {
         )}
 
         {pending.length === 0 && (
-          <p className="empty-text">No matches left to pick 🎉</p>
+          <p className="empty-text">No today's match left to pick 🎉</p>
         )}
             <br />
         <div className="dashboard-card">
