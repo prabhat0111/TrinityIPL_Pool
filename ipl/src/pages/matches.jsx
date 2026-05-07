@@ -79,15 +79,15 @@ function Matches() {
           {/* local timezone  */}
           {
           
-          // new Date(match.match_time).toLocaleTimeString([], {
-          //   hour: "2-digit",
-          //   minute: "2-digit",
+           new Date(match.match_time).toLocaleTimeString([], {
+             hour: "2-digit",
+             minute: "2-digit",
+           })
+          // new Date(match.match_time).toLocaleTimeString("en-CA", {
+          //  timeZone: "America/Toronto",
+          //  hour: "2-digit",
+          //  minute: "2-digit",
           // })
-          new Date(match.match_time).toLocaleTimeString("en-CA", {
-            timeZone: "America/Toronto",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
           
           }
 

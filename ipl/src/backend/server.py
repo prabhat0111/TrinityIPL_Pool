@@ -10,8 +10,7 @@ import uvicorn
 import pytz
 from fastapi_utils.tasks import repeat_every
 from datetime import timezone
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+
 
 # ── Session management (JWT, cookies, refresh) ──
 from session import (
@@ -87,12 +86,14 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
+
     # 🔒 Block access if password has not been reset yet
     # Allow /reset-password itself to pass through
     RESET_EXEMPT_PATHS = {"/reset-password", "/profile"}
     if not user[4] and request.url.path not in RESET_EXEMPT_PATHS:
         raise HTTPException(status_code=403, detail="Password reset required")
 
+    # 4. Auto-refresh token if within refresh window
     new_token = attach_refreshed_token(response, payload)
     request.state.refreshed_token = new_token if new_token else None
 
@@ -826,7 +827,7 @@ def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
     try:
         # Get all matches
         cur.execute("""
-            SELECT id, team1, team2, match_time, result
+            SELECT id, team1, team2, match_time, result, status
             FROM matches
             ORDER BY match_time
         """)
@@ -861,7 +862,7 @@ def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
         result = []
 
         for m in matches:
-            match_id, team1, team2, match_time, winner = m
+            match_id, team1, team2, match_time, winner, status = m
 
             row = {
                 "match_id": match_id,
@@ -869,6 +870,7 @@ def get_matrix(user=Depends(get_current_user), db=Depends(get_db)):
                 "team2": team2,
                 "match_time": match_time.isoformat(),
                 "winner": winner,
+                "status": status,   # ✅ ADD THIS LINE
                 "predictions": {}
             }
 
@@ -891,6 +893,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "server:app",
         host="0.0.0.0",
-        port=int(os.getenv("PORT", 8000)),
+        port=int(os.getenv("PORT", 8003)),
         reload=False
     )

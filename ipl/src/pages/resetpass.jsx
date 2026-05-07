@@ -15,7 +15,7 @@ function ResetPass() {
       try {
         const data = await apiFetch("/profile");
         setUser(data);
-        if (data.password_reset) {
+        if (data.password_reset){
           window.location.href = data.role === "admin" ? "/admin" : "/dashboard";
         }
       } catch (err) {
@@ -60,7 +60,7 @@ function ResetPass() {
       });
 
       alert("Password updated successfully ✅");
-      if (user.role === "admin") {
+      if (user.role==="admin"){
         window.location.href = "/admin";
       } else {
         window.location.href = "/dashboard";

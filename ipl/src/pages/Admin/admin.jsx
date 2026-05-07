@@ -66,8 +66,7 @@ function Admin() {
           //   minute: "2-digit",
           // })
           
-          new Date(match.match_time).toLocaleTimeString("en-CA", {
-            timeZone: "America/Toronto",
+          new Date(match.match_time).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })
@@ -79,13 +78,13 @@ function Admin() {
         {(match.status === "upcoming" || match.status === "completed") && (
           <p>
             {
-            // new Date(match.match_time).toLocaleDateString()
-            new Date(match.match_time).toLocaleDateString("en-CA", {
-              timeZone: "America/Toronto",
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-            })
+             new Date(match.match_time).toLocaleDateString()
+           // new Date(match.match_time).toLocaleDateString("en-CA", {
+           //   timeZone: "America/Toronto",
+           //  year: "numeric",
+           //   month: "short",
+           //   day: "2-digit",
+           // })
             }
           </p>
         )}
