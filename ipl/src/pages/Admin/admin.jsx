@@ -20,6 +20,80 @@ function Admin() {
   const [tab, setTab] = useState("today");
   const [matches, setMatches] = useState([]);
   const [liveMatches, setLiveMatches] = useState([]);
+  const [editingMatch, setEditingMatch] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+
+  const handleDelete = async (matchId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this match?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await apiFetch(`/admin/delete-match/${matchId}`, {
+        method: "DELETE",
+      });
+
+      alert("Match deleted successfully");
+
+      setMatches(matches.filter((m) => m.id !== matchId));
+      setLiveMatches(liveMatches.filter((m) => m.id !== matchId));
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete match");
+    }
+  };
+
+  const handleEdit = (match) => {
+    const localDate = new Date(match.match_time);
+
+    const formatted =
+      localDate.getFullYear() +
+      "-" +
+      String(localDate.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(localDate.getDate()).padStart(2, "0") +
+      "T" +
+      String(localDate.getHours()).padStart(2, "0") +
+      ":" +
+      String(localDate.getMinutes()).padStart(2, "0");
+
+    setEditingMatch({
+      ...match,
+      match_time: formatted,
+    });
+
+    setShowEditModal(true);
+  };
+
+  const saveEdit = async () => {
+    try {
+      await apiFetch(`/admin/edit-match/${editingMatch.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editingMatch),
+      });
+
+      alert("Match updated successfully");
+
+      setShowEditModal(false);
+
+      const data = await apiFetch(`/matches?status=${tab}`);
+      setMatches(data);
+
+      const liveData = await apiFetch(`/matches?status=live`);
+      setLiveMatches(liveData);
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update match");
+    }
+  };
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -142,6 +216,23 @@ function Admin() {
           <p>Upcoming match</p>
         )}
       </div>
+      
+      <div className="admin-actions">
+        <button
+          className="edit-btn"
+          onClick={() => handleEdit(match)}
+        >
+          Edit
+        </button>
+
+        <button
+          className="delete-btn"
+          onClick={() => handleDelete(match.id)}
+        >
+          Delete
+        </button>
+      </div>
+
     </div>
   );
 
@@ -194,9 +285,95 @@ function Admin() {
             : matches
           ).map(renderMatch)
         }
+
+
       </div>
-    </div>
-  );
+
+    {showEditModal && editingMatch && (
+      // <div className="modal-overlay">
+      <div
+        className="modal-overlay"
+        onClick={() => setShowEditModal(false)}
+      >
+        {/* <div className="edit-modal"> */}
+        <div
+          className="edit-modal"
+          onClick={(e) => e.stopPropagation()}
+        >
+
+          <h2>Edit Match</h2>
+
+          <input
+            value={editingMatch.team1}
+            onChange={(e) =>
+              setEditingMatch({
+                ...editingMatch,
+                team1: e.target.value,
+              })
+            }
+          />
+
+          <input
+            value={editingMatch.team2}
+            onChange={(e) =>
+              setEditingMatch({
+                ...editingMatch,
+                team2: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="datetime-local"
+            value={editingMatch.match_time}
+            onChange={(e) =>
+              setEditingMatch({
+                ...editingMatch,
+                match_time: e.target.value,
+              })
+            }
+          />
+
+          <select
+            value={editingMatch.status}
+            onChange={(e) =>
+              setEditingMatch({
+                ...editingMatch,
+                status: e.target.value,
+              })
+            }
+          >
+            <option value="upcoming">Upcoming</option>
+            <option value="today">Today</option>
+            <option value="live">Live</option>
+            <option value="completed">Completed</option>
+          </select>
+
+          <input
+            placeholder="Result"
+            value={editingMatch.result || ""}
+            onChange={(e) =>
+              setEditingMatch({
+                ...editingMatch,
+                result: e.target.value,
+              })
+            }
+          />
+
+          <div className="modal-actions">
+            <button onClick={saveEdit}>Save</button>
+
+            <button onClick={() => setShowEditModal(false)}>
+              Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+    )}
+
+</div>
+);
 }
 
 export default Admin;

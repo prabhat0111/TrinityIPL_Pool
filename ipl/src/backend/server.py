@@ -441,6 +441,103 @@ def add_match(data: dict, user=Depends(admin_required), db=Depends(get_db)):
     finally:
         cur.close()
 
+@app.delete("/admin/delete-match/{match_id}")
+def delete_match(match_id: int, user=Depends(admin_required), db=Depends(get_db)):
+    cur = db.cursor()
+
+    try:
+        # Check if match exists
+        cur.execute("SELECT id FROM matches WHERE id=%s", (match_id,))
+        match = cur.fetchone()
+
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        # Delete picks first (important because of foreign key)
+        cur.execute("DELETE FROM picks WHERE match_id=%s", (match_id,))
+
+        # Delete match
+        cur.execute("DELETE FROM matches WHERE id=%s", (match_id,))
+
+        db.commit()
+
+        return {"message": "Match deleted successfully"}
+
+    finally:
+        cur.close()
+
+@app.put("/admin/edit-match/{match_id}")
+def edit_match(
+    match_id: int,
+    data: dict,
+    user=Depends(admin_required),
+    db=Depends(get_db)
+):
+    cur = db.cursor()
+
+    try:
+        # Check match exists
+        cur.execute("SELECT id FROM matches WHERE id=%s", (match_id,))
+        match = cur.fetchone()
+
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        team1 = data.get("team1")
+        team2 = data.get("team2")
+        match_time = data.get("match_time")
+        status = data.get("status")
+        result = data.get("result")
+
+        # Convert frontend time to UTC
+        toronto_tz = pytz.timezone("America/Toronto")
+
+        naive_dt = datetime.fromisoformat(match_time)
+        toronto_dt = toronto_tz.localize(naive_dt)
+        utc_dt = toronto_dt.astimezone(pytz.utc)
+
+        cur.execute("""
+            UPDATE matches
+            SET
+                team1=%s,
+                team2=%s,
+                match_time=%s,
+                status=%s,
+                result=%s
+            WHERE id=%s
+        """, (
+            team1,
+            team2,
+            utc_dt,
+            status,
+            result,
+            match_id
+        ))
+
+        # OPTIONAL:
+        # Reset points when editing completed matches
+        cur.execute("""
+            UPDATE picks
+            SET points = 0
+            WHERE match_id=%s
+        """, (match_id,))
+
+        # Reassign points if result exists
+        if result and result != "No Result":
+            cur.execute("""
+                UPDATE picks
+                SET points = 1
+                WHERE match_id=%s
+                AND selected_team=%s
+            """, (match_id, result))
+
+        db.commit()
+
+        return {"message": "Match updated successfully"}
+
+    finally:
+        cur.close()
+
 @app.get("/admin/get-users")
 def get_users(user=Depends(admin_required), db=Depends(get_db)):
     cur = db.cursor()
