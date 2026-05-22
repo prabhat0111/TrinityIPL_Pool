@@ -1,11 +1,10 @@
-/* ===== SIDEBAR ===== */
 .sidebar {
   width: 220px;
   height: 100vh;
-  /* background: linear-gradient(180deg, #000000, #0A0F1C);  dark one */
-  background: linear-gradient(180deg, #0F172A, #020617);
 
-  color: white;
+  background: #ffffff;
+
+  color: #1e293b;
   padding: 20px;
 
   display: flex;
@@ -14,17 +13,20 @@
   position: sticky;
   top: 0;
 
-  border-right: 1px solid rgba(79, 195, 247, 0.1); /* subtle glow edge */
+  border-right: 1px solid #dbe3ec;
+
+  box-shadow: 4px 0 18px rgba(0, 0, 0, 0.04);
 }
 
 /* ===== LOGO TEXT ===== */
 .logo-text {
   font-size: 18px;
   margin-bottom: 30px;
+
   font-weight: bold;
   text-align: center;
 
-  color: #4FC3F7; /* 🔥 brand blue */
+  color: #2563eb;
   letter-spacing: 1px;
 }
 
@@ -40,39 +42,51 @@
   display: block;
 }
 
-/* Menu items */
+/* ===== MENU ITEMS ===== */
 .menu li {
   padding: 12px;
   margin-bottom: 10px;
-  border-radius: 8px;
+
+  border-radius: 10px;
+
   cursor: pointer;
-  color: #aaa;
-  transition: 0.3s;
+
+  color: #64748b;
+
+  transition: 0.25s ease;
 
   border: 1px solid transparent;
+
+  font-weight: 500;
 }
 
-/* Active */
+/* ===== ACTIVE ===== */
 .menu li.active {
-  background: linear-gradient(90deg, #1E6F9F, #4FC3F7); /* 🔥 gradient highlight */
-  color: #fff;
-  box-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+
+  color: #ffffff;
+
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
 }
 
-/* Hover */
+/* ===== HOVER ===== */
 .menu li:hover {
-  background: rgba(79, 195, 247, 0.1);
-  color: #fff;
-  border: 1px solid rgba(79, 195, 247, 0.3);
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  border: 1px solid #bfdbfe;
 }
 
 /* ===== BOTTOM SECTION ===== */
 .bottom {
   margin-top: auto;
-  font-size: 14px;
-  color: #aaa;
 
-  border-top: 1px solid rgba(79, 195, 247, 0.15);
+  font-size: 14px;
+  color: #64748b;
+
+  border-top: 1px solid #e2e8f0;
+
   padding-top: 15px;
 
   text-align: center;
@@ -83,56 +97,81 @@
   display: block;
 }
 
-/* Bottom items */
+/* ===== BOTTOM ITEMS ===== */
 .bottom p {
   margin: 10px 0;
+
   cursor: pointer;
-  color: #aaa;
-  transition: 0.3s;
+
+  color: #64748b;
+
+  transition: 0.25s ease;
 }
 
-/* Hover */
+/* ===== HOVER ===== */
 .bottom p:hover {
-  color: #4FC3F7;
+  color: #2563eb;
 }
 
-/* Active reset */
+/* ===== ACTIVE RESET ===== */
 .active-bottom {
-  color: #4FC3F7;
+  color: #2563eb;
   font-weight: bold;
 }
 
 /* ===== SIDEBAR IMAGE LOGO ===== */
 .sidebar-logo {
   width: 110px;
+
   display: block;
+
   margin: 20px auto 0;
-  border-radius: 6px; /* 👈 curves the edges */
 
+  border-radius: 8px;
 
-  filter: drop-shadow(0 0 8px rgba(79, 195, 247, 0.3)); /* 🔥 glow */
-  opacity: 0.9;
+  background: white;
+  padding: 4px;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+
+  opacity: 0.95;
+
+  transition: 0.25s ease;
 }
 
 .sidebar-logo:hover {
   opacity: 1;
-  transform: scale(1.05);
-  transition: 0.3s ease;
-  filter: drop-shadow(0 0 12px rgba(79, 195, 247, 0.6));
 
+  transform: scale(1.05);
+
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.15);
 }
+
 /* ===== HAMBURGER ===== */
 .hamburger {
   display: none;
+
   position: fixed;
+
   top: 15px;
   left: 15px;
+
   font-size: 24px;
-  color: white;
-  background: #020617;
+
+  color: #1e293b;
+
+  background: #ffffff;
+
   padding: 8px 12px;
-  border-radius: 6px;
+
+  border-radius: 8px;
+
+  border: 1px solid #dbe3ec;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
   z-index: 1001;
+
   cursor: pointer;
 }
 
@@ -140,11 +179,15 @@
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
+
     left: -100%;
     top: 0;
+
     width: 220px;
     height: 100vh;
+
     z-index: 1000;
+
     transition: 0.3s ease;
   }
 
@@ -156,11 +199,13 @@
     display: block;
   }
 }
+
+/* ===== LAYOUT ===== */
 .layout {
   display: flex;
 }
 
-/* Mobile fix */
+/* ===== MOBILE FIX ===== */
 @media (max-width: 768px) {
   .layout {
     flex-direction: column;

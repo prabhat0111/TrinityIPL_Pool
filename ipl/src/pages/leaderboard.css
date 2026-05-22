@@ -1,11 +1,11 @@
-/* ===== ROOT RESET ===== */
+/*=== ROOT RESET ===== */
 html, body, #root {
   height: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
-  background: #0F172A !important; /* page background dark */
+  background: #f4f7fb !important; /* page background dark */
   font-family: "Segoe UI", sans-serif;
-  color: #ECEFF1;
+  color: #1e293b !important;
 }
 
 /* ===== GLOBAL LAYOUT ===== */
@@ -13,7 +13,7 @@ html, body, #root {
   display: flex !important;
   min-height: 100vh !important;
   width: 100% !important;
-  background: linear-gradient(180deg, #0F172A, #020617) !important; /* dark gradient background */
+  background: #f4f7fb !important; /* dark gradient background */
 }
 
 .sidebar {
@@ -30,12 +30,13 @@ html, body, #root {
 
 /* ===== HEADER CARD ===== */
 .header-card {
-  background: linear-gradient(180deg, #0F172A, #020617) !important; /* dark gradient like match cards */
+  background: #ffffff !important; /* dark gradient like match cards */
   padding: 30px !important;
   border-radius: 14px !important;
-  border-left: 4px solid #4FC3F7 !important;
+  border: 1px solid #dbe3ec !important;
+  border-left: 4px solid #2563eb !important;
   margin-bottom: 30px !important;
-  box-shadow: 0 0 20px rgba(79, 195, 247, 0.2) !important;
+  box-shadow:  0 8px 24px rgba(0,0,0,0.06) !important;
 }
 
 .tag, .season {
@@ -47,23 +48,24 @@ html, body, #root {
 .header-card h1 {
   font-size: 40px !important;
   margin: 10px 0 !important;
-  background: linear-gradient(90deg, #4FC3F7, #1E6F9F) !important;
+  background: none !important;
+  color: #1e293b !important;
   -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
+  -webkit-text-fill-color: initial !important;
 }
 
 .subtitle {
-  color: #aaa !important;
+  color: #64748b !important;
   max-width: 600px !important;
 }
 
 /* ===== TABLE / LEADERBOARD CARD ===== */
 .table-card {
-  background: linear-gradient(180deg, #0F172A, #020617) !important;
+  background: #ffffff !important;
   border-radius: 14px !important;
   padding: 20px !important;
-  border: 1px solid rgba(79, 195, 247, 0.1) !important;
-  box-shadow: 0 0 20px rgba(79, 195, 247, 0.1) !important;
+  border: 1px solid #dbe3ec !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* ===== TABLE HEADER ===== */
@@ -118,19 +120,26 @@ html, body, #root {
 .avatar {
   width: 42px !important;
   height: 42px !important;
-  background: linear-gradient(135deg, #0F172A, #020617) !important;
+
+  background: #eff6ff !important;
+
   border-radius: 10px !important;
+
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: #4FC3F7 !important;
+
+  color: #2563eb !important;
+
   font-weight: bold !important;
-  border: 1px solid rgba(79, 195, 247, 0.25) !important;
-  box-shadow: 0 0 8px rgba(79, 195, 247, 0.15) !important;
+
+  border: 1px solid #bfdbfe !important;
+
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08) !important;
 }
 
 /* ===== TEXT ===== */
-.name { margin: 0 !important; font-weight: 500 !important; color: #ECEFF1 !important; }
+.name { margin: 0 !important; font-weight: 500 !important;color: #aaa !important; }
 .tier { margin: 0 !important; font-size: 12px !important; color: #90A4AE !important; }
 
 /* ===== BUTTON ===== */
@@ -300,6 +309,7 @@ html, body, #root {
 .podium-name {
   font-weight: 600;
   margin-bottom: 10px;
+  color: blue;
 }
 
 /* Base box */

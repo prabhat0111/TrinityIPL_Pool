@@ -234,7 +234,7 @@ function Dashboard() {
         )}
 
         {pending.length === 0 && (
-          <p className="empty-text">No matches left to pick 🎉</p>
+          <p className="empty-text">No matches left to pick for today🎉</p>
         )}
             <br />
         <div className="dashboard-card">
@@ -242,7 +242,7 @@ function Dashboard() {
 
           {past.slice(0, visibleCount).map((match, index) => (
             <div key={index} className="pick-row">
-              <span>{match.team1} vs {match.team2}</span>
+              <span style={{color:'black'}}>{match.team1} vs {match.team2}</span>
 
               {match.status === "win" && <span className="win-badge">Win</span>}
               {match.status === "lose" && <span className="lose-badge">Lose</span>}

@@ -1,83 +1,130 @@
-/* CONTAINER */
+/* ===== TABLE CONTAINER ===== */
 .table-container {
   overflow-x: auto;
-  background: linear-gradient(180deg, #0F172A, #020617);
+
+  background: #ffffff;
+
   border-radius: 14px;
+
   padding: 15px;
-  border: 1px solid rgba(79, 195, 247, 0.1);
-  box-shadow: 0 0 20px rgba(79, 195, 247, 0.08);
+
+  border: 1px solid #dbe3ec;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
-/* TABLE */
+/* ===== TABLE ===== */
 .matrix-table {
   width: 100%;
+
   border-collapse: collapse;
+
   min-width: 900px;
-  color: #E5E7EB;
+
+  color: #1e293b;
+
   font-size: 13px;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 .matrix-table th {
   text-align: left;
+
   padding: 12px;
-  color: #4FC3F7;
+
+  color: #2563eb;
+
   font-size: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+
+  font-weight: 700;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  background: #f8fafc;
 }
 
-/* ROWS */
+/* ===== ROWS ===== */
 .matrix-table td {
   padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+
+  border-bottom: 1px solid #f1f5f9;
+
+  color: #1e293b;
 }
 
-/* HOVER */
+/* ===== HOVER ===== */
 .matrix-table tbody tr:hover {
-  background: rgba(79, 195, 247, 0.05);
+  background: #f8fbff;
 }
 
-/* MATCH CELL */
+/* ===== MATCH CELL ===== */
 .match-cell .short {
-  font-weight: bold;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 .match-cell .full {
   font-size: 11px;
-  color: #9CA3AF;
+
+  color: #64748b;
+
   margin-top: 3px;
 }
 
-/* STATES */
+/* ===== STATES ===== */
 .correct {
-  color: #4ADE80;
-  font-weight: bold;
+  color: #16a34a;
+  font-weight: 700;
 }
 
 .wrong {
-  color: #F87171;
+  color: #dc2626;
+  font-weight: 600;
 }
 
 .no-pick {
-  color: #9CA3AF;
+  color: #94a3b8;
 }
 
 .no-result {
-  color: #FACC15;
+  color: #ca8a04;
+  font-weight: 600;
 }
 
-/* WINNER */
+/* ===== WINNER ===== */
 .winner {
-  color: #4FC3F7;
-  font-weight: bold;
+  color: #2563eb;
+  font-weight: 700;
 }
+
+/* ===== HIDDEN PICK ===== */
 .hidden-pick {
-  color: #6B7280;
-  font-weight: bold;
+  color: #94a3b8;
+
+  font-weight: 700;
+
   letter-spacing: 2px;
 }
 
+/* ===== OWN PICK ===== */
 .own-pick {
-  color: #4FC3F7;
-  font-weight: bold;
+  color: #2563eb;
+
+  font-weight: 700;
+}
+
+/* ===== OPTIONAL RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .table-container {
+    padding: 10px;
+  }
+
+  .matrix-table {
+    font-size: 12px;
+  }
+
+  .matrix-table th,
+  .matrix-table td {
+    padding: 10px;
+  }
 }

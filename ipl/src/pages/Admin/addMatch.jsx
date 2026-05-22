@@ -8,7 +8,13 @@ function AddMatch() {
   const [team2, setTeam2] = useState("");
   const [matchTime, setMatchTime] = useState("");
   const [status, setStatus] = useState("upcoming");
-
+  const inputStyle = {
+  backgroundColor: "#ffffff",
+  color: "#1e293b",
+  border: "1px solid #cbd5e1",
+  borderRadius: "8px",
+  padding: "12px",
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -54,6 +60,7 @@ function AddMatch() {
               value={team1}
               onChange={(e) => setTeam1(e.target.value)}
               required
+              style={inputStyle}
             />
 
             <br /><br />
@@ -64,6 +71,7 @@ function AddMatch() {
               value={team2}
               onChange={(e) => setTeam2(e.target.value)}
               required
+              style={inputStyle}
             />
 
             <br /><br />
@@ -74,17 +82,11 @@ function AddMatch() {
               value={matchTime}
               onChange={(e) => setMatchTime(e.target.value)}
               required
-              style={{
-                backgroundColor: 'transparent',
-                color: 'white',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                padding: '12px',
-                fontSize: '14px',
-              }}
+              style={inputStyle}
             />
 
             {/* Force calendar icon to white */}
+
             <style>
               {`
                 .data-input::-webkit-calendar-picker-indicator {
@@ -98,6 +100,7 @@ function AddMatch() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
+              style = {inputStyle}
             >
               <option value="upcoming">Upcoming</option>
               <option value="today">Today</option>

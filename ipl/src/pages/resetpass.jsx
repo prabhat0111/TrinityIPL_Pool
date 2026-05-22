@@ -15,9 +15,6 @@ function ResetPass() {
       try {
         const data = await apiFetch("/profile");
         setUser(data);
-        if (data.password_reset){
-          window.location.href = data.role === "admin" ? "/admin" : "/dashboard";
-        }
       } catch (err) {
         if (err.message !== "Session expired") {
           console.error(err);
@@ -75,7 +72,7 @@ function ResetPass() {
 
   return (
     <div className="layout">
-      <Sidebar />
+      {user?.password_reset && <Sidebar />}
       <div className="main-content reset-page">
         <div className="reset-wrapper">
           <form className="reset-card" onSubmit={handleSubmit}>

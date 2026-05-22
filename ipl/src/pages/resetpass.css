@@ -1,6 +1,7 @@
 /* ===== RESET PAGE ONLY ===== */
 .reset-page {
-  background: linear-gradient(180deg, #000000, #0A0F1C);
+  background: #f4f7fb;
+
   font-family: "Segoe UI", sans-serif;
 
   display: flex;
@@ -8,9 +9,10 @@
   align-items: center;
 }
 
-/* Wrapper */
+/* ===== WRAPPER ===== */
 .reset-page .reset-wrapper {
   width: 100%;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,13 +21,16 @@
 /* ===== CARD ===== */
 .reset-page .reset-card {
   width: 400px;
-  background: rgba(15, 23, 42, 0.9);
-  padding: 30px;
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
 
-  border: 1px solid rgba(79, 195, 247, 0.15);
-  box-shadow: 0 0 25px rgba(79, 195, 247, 0.08);
+  background: #ffffff;
+
+  padding: 30px;
+
+  border-radius: 16px;
+
+  border: 1px solid #dbe3ec;
+
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
 
   text-align: center;
 }
@@ -34,117 +39,179 @@
 .reset-page .icon-box {
   width: 60px;
   height: 60px;
+
   margin: 0 auto 15px;
+
   border-radius: 12px;
 
-  background: rgba(79, 195, 247, 0.15);
-  color: #4FC3F7;
+  background: #eff6ff;
+
+  color: #2563eb;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 26px;
 
-  box-shadow: 0 0 10px rgba(79, 195, 247, 0.2);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.08);
 }
 
 /* ===== HEADINGS ===== */
 .reset-page h2 {
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #4FC3F7, #1E6F9F);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+
+  color: #1e293b;
+
+  font-weight: 700;
 }
 
 .reset-page p {
   font-size: 14px;
-  color: #aaa;
+
+  color: #64748b;
+
   margin-bottom: 20px;
 }
 
 /* ===== INPUTS ===== */
 .reset-page .input-group {
   text-align: left;
+
   margin-bottom: 18px;
 }
 
 .reset-page .input-group label {
-  font-size: 12px;
-  color: #aaa;
+  font-size: 13px;
+
+  color: #475569;
+
+  font-weight: 600;
 }
 
 .reset-page .input-field {
   display: flex;
   align-items: center;
-  background: #020617;
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: 5px;
 
-  border: 1px solid rgba(79, 195, 247, 0.15);
-  transition: 0.3s;
+  background: #f8fafc;
+
+  border-radius: 10px;
+
+  padding: 10px 12px;
+
+  margin-top: 6px;
+
+  border: 1px solid #cbd5e1;
+
+  transition: 0.25s ease;
 }
 
-/* Focus glow */
+/* ===== FOCUS ===== */
 .reset-page .input-field:focus-within {
-  border: 1px solid #4FC3F7;
-  box-shadow: 0 0 8px rgba(79, 195, 247, 0.3);
+  border: 1px solid #3b82f6;
+
+  background: #ffffff;
+
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .reset-page .input-field span {
   margin-right: 8px;
+
   cursor: pointer;
-  color: #4FC3F7;
+
+  color: #64748b;
 }
 
 .reset-page .input-field input {
   flex: 1;
+
   background: transparent;
+
   border: none;
+
   outline: none;
-  color: #fff;
+
+  color: #1e293b;
+
+  font-size: 14px;
+}
+
+.reset-page .input-field input::placeholder {
+  color: #94a3b8;
 }
 
 /* ===== BUTTON ===== */
 .reset-page .reset-btn {
   width: 100%;
+
   padding: 12px;
 
-  background: linear-gradient(90deg, #1E6F9F, #4FC3F7);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+
   border: none;
+
   border-radius: 10px;
 
-  color: #fff;
-  font-weight: bold;
+  color: #ffffff;
+
+  font-weight: 600;
+
   cursor: pointer;
+
   margin-top: 10px;
 
-  transition: 0.3s;
+  transition: 0.25s ease;
 }
 
 .reset-page .reset-btn:hover {
-  box-shadow: 0 0 12px rgba(79, 195, 247, 0.4);
   transform: translateY(-1px);
+
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
 }
 
 /* ===== BACK LINK ===== */
 .reset-page .back-login {
   margin-top: 15px;
+
   font-size: 13px;
-  color: #aaa;
+
+  color: #2563eb;
+
   cursor: pointer;
-  transition: 0.3s;
+
+  font-weight: 600;
+
+  transition: 0.25s ease;
 }
 
 .reset-page .back-login:hover {
-  color: #4FC3F7;
+  color: #1d4ed8;
+
+  text-decoration: underline;
 }
 
 /* ===== FOOTER ===== */
 .reset-page .footer {
   margin-top: 20px;
+
   font-size: 12px;
-  color: #666;
+
+  color: #64748b;
+
   display: flex;
   justify-content: space-between;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 500px) {
+  .reset-page .reset-card {
+    width: 100%;
+
+    padding: 24px;
+  }
+
+  .reset-page h2 {
+    font-size: 24px;
+  }
 }

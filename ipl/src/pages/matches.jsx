@@ -18,7 +18,7 @@ const TEAM_FULL_NAMES = {
 };
 
 function Matches() {
-  const [tab, setTab] = useState("today"); // upcoming / today / completed
+  const [tab, setTab] = useState("upcoming"); // upcoming / today / completed
   const [matches, setMatches] = useState([]);
   const [liveMatches, setLiveMatches] = useState([]);
   const [userPicks, setUserPicks] = useState({});
@@ -27,8 +27,36 @@ function Matches() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
+        if (tab === "upcoming") {
+
+          const upcomingData = await apiFetch("/matches?status=upcoming");
+
+          const todayData = await apiFetch("/matches?status=today");
+
+ 
+
+          // setMatches([
+
+          //   ...todayData,
+
+          //   ...upcomingData
+
+          // ]);
+
+          setMatches(
+
+            [...todayData, ...upcomingData].sort(
+
+              (a, b) => new Date(a.match_time) - new Date(b.match_time)
+
+            )
+
+          );
+
+        } else {
         const data = await apiFetch(`/matches?status=${tab}`);
         setMatches(data);
+        }
       } catch (err) {
         if (err.message !== "Session expired") {
           console.error(err);
@@ -100,8 +128,10 @@ function Matches() {
             {
             
             // new Date(match.match_time).toLocaleDateString()
-            new Date(match.match_time).toLocaleDateString("en-CA", {
-              timeZone: "America/Toronto"
+            new Date(match.match_time).toLocaleDateString([], {
+              day: "numeric",
+              month: "short",
+              year: "numeric"
             })
             
             }
@@ -130,20 +160,20 @@ function Matches() {
       
 
       <div className="bets">
-        {match.status === "today" ? (
+        {(match.status === "today" || match.status === "upcoming") ? (
           <>
             <div
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team1 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team1)}
             >
-              <h4 style={{ color: "white" }}>PICK {match.team1}</h4>
+              <h4>PICK {match.team1}</h4>
             </div>
 
             <div
               className={`bet ${(userPicks[match.id] || match.user_pick) === match.team2 ? "active-bet" : ""}`}
               onClick={() => placePick(match.id, match.team2)}
             >
-              <h4 style={{ color: "white" }}>PICK {match.team2}</h4>
+              <h4>PICK {match.team2}</h4>
             </div>
           </>
         ) : match.status === "completed" ? (
@@ -200,7 +230,6 @@ function Matches() {
 
         <div className="tabs">
           <button onClick={() => setTab("upcoming")} className={tab==="upcoming" ? "active":""}>UPCOMING</button>
-          <button onClick={() => setTab("today")} className={tab==="today" ? "active":""}>TODAY</button>
           <button onClick={() => setTab("completed")} className={tab==="completed" ? "active":""}>COMPLETED</button>
         </div>
 
